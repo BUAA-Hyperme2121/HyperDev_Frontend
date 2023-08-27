@@ -4,15 +4,16 @@
       <h3>{{ this.document_title }}</h3>
     </div>
     <div id="vditor"></div>
-    <div style="margin-top: 30px">
+    <!--div style="margin-top: 30px">
       <el-button
         type="primary"
         style="margin-left: 450px; margin-right: 100px"
         @click="atOthers"
-        >艾特</el-button
+        >艾特</el-button>
+      <el-button type="primary" @click="saveDoc" style="margin-left: 500px"
+        >保存</el-button
       >
-      <el-button type="primary" @click="saveDoc">保存</el-button>
-    </div>
+    </div-->
     <el-dialog :visible.sync="dialogVisible">
       <el-table
         :data="members"
@@ -29,10 +30,17 @@
   </div>
 </template>
 <script>
+import { ThemeRiverChart } from "echarts/charts";
 import Vditor from "vditor";
 import "vditor/dist/index.css";
 
 export default {
+  created() {
+    window.addEventListener("keydown", this.handleKeyPress);
+  },
+  destroyed() {
+    window.removeEventListener("keydown", this.handleKeyPress);
+  },
   data() {
     return {
       dialogVisible: false,
@@ -47,8 +55,9 @@ export default {
     };
   },
   mounted() {
+    let that = this;
     this.contentEditor = new Vditor("vditor", {
-      height: 500,
+      height: 550,
       toolbarConfig: {
         pin: true,
       },
@@ -59,6 +68,29 @@ export default {
         "italic",
         "strike",
         "link",
+        {
+          hotkey: "",
+          name: "at",
+          tipPosition: "s",
+          tip: "艾特",
+          className: "right",
+          icon: `<img style="height: 16px" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='none' d='M0 0h24v24H0z'/><path d='M12 22A9 9 0 1 0 3 13h2a7 7 0 1 1 10 0h2a9 9 0 0 0-9 9zm-2-9a5 5 0 1 0 10 0H10zm-1-7h2v2h-2zm4 0h2v2h-2zm-8 0h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm1-2v2h2V6h-2zm-4 0h2v2h-2zm-4 0h2v2H7zm-1 4v2h2v-2H6zm4 0h2v2h-2zm4 0h2v2h-2zm1-2v2h2v-2h-2zM6 16v-2H4v2h2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm1-2v-2h-2v2h2zM6 12H4v2h2v-2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm1-2v-2h-2v2h2zM6 8H4v2h2V8zm4 0h2V6h-2v2zm4 0h2V6h-2v2zm1-2v2h2V6h-2zM6 4H4v2h2V4zm4 0h2V2h-2v2zm4 0h2V2h-2v2zm1-2v2h2V2h-2z'/></svg>" alt="At Symbol">`,
+
+          click() {
+            that.atOthers();
+          },
+        },
+        {
+          hotkey: "",
+          name: "at",
+          tipPosition: "s",
+          tip: "保存",
+          className: "right",
+          icon: `<img style="height: 16px" src='https://img.58cdn.com.cn/escstatic/docs/imgUpload/idocs/save.svg'/>`,
+          click() {
+            that.saveDoc();
+          },
+        },
         "|",
         "list",
         "ordered-list",
@@ -152,6 +184,12 @@ export default {
       });
   },
   methods: {
+    handleKeyPress(event) {
+      if (event.key === "@") {
+        this.dialogVisible = true;
+        event.preventDefault();
+      }
+    },
     saveDoc() {
       console.log(this.contentEditor.getValue());
       let formData = new FormData();

@@ -19,27 +19,7 @@
           >
           </el-table-column> -->
 
-          <el-table-column prop="document_title" label="文档标题" width="190">
-          </el-table-column>
-
-          <el-table-column prop="creator_name" label="文档创建者" width="130">
-          </el-table-column>
-
-          <el-table-column
-            label="文档创建时间"
-            width="170"
-            style="display: flex; align-items: center"
-          >
-            <template slot-scope="scope">
-              <i class="el-icon-time"></i>
-              <!-- <span style="margin-left: 10px;">{{scope.row.created_time}}</span> -->
-              <span style="margin-left: 10px">{{
-                scope.row.created_time.substring(0, 10)
-              }}</span>
-              <span style="margin-left: 3px">{{
-                scope.row.created_time.substring(11, 16)
-              }}</span>
-            </template>
+          <el-table-column prop="doc_name" label="文档标题" width="250">
           </el-table-column>
           <el-table-column
             label="操作"
@@ -56,12 +36,12 @@
               >
               <el-button
                 type="primary"
-                @click="getOldDocumentToken(scope.row.document_id)"
+                @click="getOldDocumentToken(scope.row.id)"
                 >编辑</el-button
               >
               <el-button
                 type="primary"
-                @click="removeSingleDocument(scope.row.document_id)"
+                @click="removeSingleDocument(scope.row.id)"
                 >删除</el-button
               >
             </template>
@@ -183,45 +163,26 @@ export default {
       renameDocumentTitle: DEFAULT_RENAME,
       falselist: [
         {
-          document_id: 7,
-          creator_id: 0,
-          document_title: "1-标题",
-          creator_name: "xiaoyi",
-          document_content:
-            "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
-          created_time: "2022-08-04T14:56:22.274",
-          updated_time: "",
+          id: 7,
+          doc_name: "1-标题",
+          text: "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
         },
         {
-          document_id: 8,
-          creator_id: 0,
-          document_title: "2-标题",
-          creator_name: "xiaoyi",
-          document_content:
-            "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
-          created_time: "2022-08-04T14:56:22.274",
-          updated_time: "",
+          id: 7,
+          doc_name: "2-标题",
+          text: "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
         },
         {
-          document_id: 9,
-          creator_id: 0,
-          document_title: "3-标题",
-          creator_name: "xiaoyi",
-          document_content:
-            "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
-          created_time: "2022-08-04T14:56:22.274",
-          updated_time: "",
+          id: 7,
+          doc_name: "3-标题",
+          text: "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
         },
       ],
       // VERY IMPORTANT 当前正在操作的文档
       curOperationDoc: {
-        document_id: 7,
-        creator_id: 0,
-        document_title: "1-标题",
-        document_content:
-          "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
-        created_time: "2022-08-04T14:56:22.274",
-        updated_time: "",
+        id: 1,
+        document_name: "1-标题",
+        text: "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
       },
       // 当前项目下已经创建的文件列表
       document_list: [],
@@ -240,17 +201,13 @@ export default {
   },
   methods: {
     async getCurrentDocumentList() {
-      let formData = new FormData();
       let project_id = this.$route.params.project_id;
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("project_id", project_id);
       this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/list_document",
-        data: formData,
+        method: "GET",
+        url: `/project/${project_id}/document`,
       })
         .then((res) => {
-          this.document_list = res.data.document_list;
+          this.document_list = res.data;
         })
         .catch((err) => {
           console.log(err);
