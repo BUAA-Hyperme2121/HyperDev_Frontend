@@ -9,9 +9,8 @@
           @click="ifShowTheCreateNewDocWindow = true"
         ></div>
       </div>
-
       <div class="table-container">
-        <el-table :data="falselist" style="width: 100%" border height="550">
+        <el-table :data="document_list" style="width: 100%" border height="550">
           <!-- <el-table-column
             prop="document_id"
             label="文档id"
@@ -31,13 +30,13 @@
             "
           >
             <template slot-scope="scope">
-              <el-button type="primary" @click="openRenameDocWindow(scope.row)"
-                >重命名</el-button
-              >
               <el-button
                 type="primary"
                 @click="getOldDocumentToken(scope.row.id)"
                 >编辑</el-button
+              >
+              <el-button type="primary" @click="openRenameDocWindow(scope.row)"
+                >重命名</el-button
               >
               <el-button
                 type="primary"
@@ -141,9 +140,7 @@
             <!-- 这里传入 输入的内容新标题 -->
             <button
               class="btn-fav"
-              @click="
-                renameDocument(curOperationDoc.document_id, renameDocumentTitle)
-              "
+              @click="renameDocument(curOperationDoc.id, renameDocumentTitle)"
             >
               确定
             </button>
@@ -205,9 +202,13 @@ export default {
       this.axios({
         method: "GET",
         url: `/project/${project_id}/document`,
+        params: {
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        },
       })
         .then((res) => {
-          this.document_list = res.data;
+          console.log(res);
+          this.document_list = res.data.data;
         })
         .catch((err) => {
           console.log(err);
@@ -228,20 +229,17 @@ export default {
       let project_id = this.$route.params.project_id;
       let document_title = this.newDocumentTitle;
       formData.append("doc_name", document_title);
-      formData.append("text", "");
+      formData.append("jwt", JSON.parse(localStorage.getItem("jwt"))),
+        formData.append("text", "");
       this.axios({
         method: "POST",
         url: `/project/${project_id}/document`,
         data: formData,
       })
         .then((res) => {
-          let document_id = res.data.id;
-          this.$router.push({
-            path: `/project/${project_id}/doc`,
-            query: {
-              document_id: document_id,
-            },
-          });
+          console.log(res);
+          this.$message.success("创建成功");
+          this.getCurrentDocumentList();
         })
         .catch((err) => {
           console.log(err);
@@ -258,15 +256,20 @@ export default {
       });
     },
     async removeSingleDocument(documentID) {
+      let formData = new FormData();
+      formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
       let document_id = documentID;
       let project_id = this.$route.params.project_id;
       this.axios({
-        method: "POST",
+        method: "DELETE",
         url: `/project/${project_id}/document/${document_id}`,
+        data: formData,
       })
         .then((res) => {
+          console.log(res);
           this.$message.success("文档删除成功！");
-          this.document_list = res.data.document_list;
+          this.getCurrentDocumentList();
+          ``;
         })
         .catch((err) => {
           console.log(err);
@@ -274,38 +277,29 @@ export default {
     },
 
     async renameDocument(documentID, newTitle) {
-      console.log(
-        `想要重命名的文件id是 :${documentID}, 新的名字是 :${newTitle}`
-      );
-
-      /// 先关闭窗口
       this.ifShowTheRenameDocWindow = false;
 
       let formData = new FormData();
+      formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
+      formData.append("doc_name", newTitle);
       let document_id = documentID;
-      let document_title = newTitle;
-
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("document_id", document_id);
-      formData.append("document_title", document_title);
+      let project_id = this.$route.params.project_id;
       this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/rename_document",
+        method: "PUT",
+        url: `/project/${project_id}/document/${document_id}`,
         data: formData,
       })
         .then((res) => {
-          console.log(res);
+          console.log("返回值");
+          console.log(res.data);
           this.$message.success("文档重命名成功！");
-          this.document_list = res.data.document_list;
+          this.getCurrentDocumentList();
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    /**
-     * 除了点击“确定”以外其他的退出重命名窗口的方式
-     * 有一些注意事项
-     */
+
     closeRenameDocWindow() {
       this.renameDocumentTitle = DEFAULT_RENAME;
       this.ifShowTheRenameDocWindow = false;
@@ -313,7 +307,8 @@ export default {
     },
 
     openRenameDocWindow(item) {
-      this.curOperationDoc = item;
+      this.curOperationDoc.id = item.id;
+      this.curOperationDoc.doc_name = item.doc_name;
       this.changeToRenameInput = false;
       this.renameDocumentTitle = item.doc_name;
       this.ifShowTheRenameDocWindow = true;

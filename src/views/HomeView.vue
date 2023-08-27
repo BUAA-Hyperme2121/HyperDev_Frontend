@@ -79,7 +79,11 @@
       width="30%"
       center
     >
-      <el-input placeholder="团队名称" v-model="newTeamName" @keyup.enter.native="createTeam"></el-input>
+      <el-input
+        placeholder="团队名称"
+        v-model="newTeamName"
+        @keyup.enter.native="createTeam"
+      ></el-input>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="createTeamDialogVisible = false">取消</el-button>
@@ -191,7 +195,6 @@ export default {
           //保存团队列表
           this.teamList = res.data.data;
           // console.log(this.teamList);
-
         })
         .catch((err) => {
           //提示获取失败
@@ -211,7 +214,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .home {
   display: flex;
   height: 100%;

@@ -55,7 +55,8 @@ import RealTimeComponentList from "@/components/RealTimeComponentList";
 import CanvasAttr from "@/components/CanvasAttr";
 import { changeComponentSizeWithScale } from "@/utils/changeComponentsSizeWithScale";
 import { setDefaultcomponentData } from "@/store/snapshot";
-
+import axios from "axios";
+import { Message } from "element-ui";
 export default {
   components: {
     Editor,
@@ -67,52 +68,36 @@ export default {
     CanvasAttr,
   },
   beforeRouteEnter(to, from, next) {
-    next();
-    /*
+    let project_id = to.params.project_id;
+    let prototype_id = to.query.page_id;
     let formData = new FormData();
-    formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-    formData.append("page_id", to.query.page_id);
-    this.axios({
-      method: "POST",
-      url: "",
+    formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
+    formData.append("try_modify", true);
+    axios({
+      method: "PATCH",
+      url: `/project/${project_id}/prototype/${prototype_id}`,
       data: formData,
     })
       .then((res) => {
-        if (res.result == 0) {
-          next();
-        } else {
-          this.$message.error("无权限");
+        if (res.data.result != 0) {
+          Message.error("无法获得权限");
           next(from.fullPath);
+        } else {
+          next();
         }
       })
       .catch((err) => {
-        this.$message.error("跳转失败");
-        console.log(err);
         next(from.fullPath);
-      });*/
+      });
   },
   beforeRouteLeave(to, from, next) {
+    let project_id = this.$route.params.project_id;
+    let prototype_id = this.$route.query.page_id;
+    this.axios.patch(`/project/${project_id}/prototype/${prototype_id}`, {
+      jwt: JSON.parse(localStorage.getItem("jwt")),
+      try_modify: false,
+    });
     next();
-    /*
-    let formData = new FormData();
-    formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-    formData.append("page_id", this.$route.query.page_id);
-    this.axios({
-      method: "POST",
-      url: "",
-      data: formData,
-    })
-      .then((res) => {
-        if (res.result == 0) {
-          next();
-        } else {
-          this.$message.error("退出编辑失败");
-        }
-      })
-      .catch((err) => {
-        this.$message.error("退出编辑失败");
-        console.log(err);
-      });*/
   },
   data() {
     return {
@@ -128,34 +113,32 @@ export default {
     "editor",
   ]),
   created() {
-    this.restore();
+    let project_id = this.$route.params.project_id;
+    let prototype_id = this.$route.query.page_id;
+    this.axios({
+      method: "GET",
+      url: `/project/${project_id}/prototype/${prototype_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+      },
+    })
+      .then((res) => {
+        let pageData = res.data.data.page_data;
+        let pageStyle = res.data.data.page_style;
+        console.log(pageData);
+        console.log(pageStyle);
+        setDefaultcomponentData(JSON.parse(pageData));
+        this.$store.commit("setComponentData", JSON.parse(pageData));
+        this.$store.commit("setCanvasStyle", JSON.parse(pageStyle));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     // 全局监听按键事件
     listenGlobalKeyDown();
   },
   methods: {
-    restore() {
-      /*
-      let formData = new FormData();
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("page_id", this.$route.query.page_id);
-      this.axios({
-        method: "POST",
-        url: "",
-        data: formData,
-      })
-        .then((res) => {
-          let pageData = res.data.page_data;
-          let pageStyle = res.data.page_style;
-          setDefaultcomponentData(JSON.parse(pageData));
-          this.$store.commit("setComponentData", JSON.parse(pageData));
-          this.$store.commit("setCanvasStyle", JSON.parse(pageStyle));
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$router.back();
-        });
-        */
-    },
+    restore() {},
 
     handleDrop(e) {
       e.preventDefault();
@@ -202,7 +185,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .home {
   height: 100vh;
   background: #fff;

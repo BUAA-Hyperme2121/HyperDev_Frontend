@@ -194,17 +194,19 @@ export default {
     },
 
     save() {
+      console.log(localStorage.getItem("canvasData"));
+      console.log(localStorage.getItem("canvasStyle"));
       localStorage.setItem("canvasData", JSON.stringify(this.componentData));
       localStorage.setItem("canvasStyle", JSON.stringify(this.canvasStyleData));
       let formData = new FormData();
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("page_id", this.$route.query.page_id);
+      formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
       formData.append("page_style", localStorage.getItem("canvasStyle"));
       formData.append("page_data", localStorage.getItem("canvasData"));
-
+      let project_id = this.$route.params.project_id;
+      let prototype_id = this.$route.query.page_id;
       this.axios({
-        method: "POST",
-        url: "",
+        method: "PUT",
+        url: `/project/${project_id}/prototype/${prototype_id}`,
         data: formData,
       })
         .then((res) => {

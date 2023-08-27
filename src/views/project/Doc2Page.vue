@@ -22,10 +22,24 @@
       >
         <el-table-column label="昵称">
           <template slot-scope="scope">
-            {{ scope.row }}
+            {{ scope.row.name }}
           </template>
         </el-table-column>
       </el-table>
+    </el-dialog>
+    <el-dialog
+      title="分享链接"
+      :visible="shareDialogVisible"
+      @close="closeShareDialog"
+    >
+      <div style="text-align: center">
+        <h4>可编辑链接</h4>
+        <h6>链接1: {{ link1 }}</h6>
+      </div>
+      <div style="text-align: center">
+        <h4>不可编辑链接</h4>
+        <h6>链接2: {{ link2 }}</h6>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -35,12 +49,12 @@ import Vditor from "vditor";
 import "vditor/dist/index.css";
 
 export default {
-  created() {
+  /* created() {
     window.addEventListener("keydown", this.handleKeyPress);
   },
   destroyed() {
     window.removeEventListener("keydown", this.handleKeyPress);
-  },
+  }, */
   data() {
     return {
       dialogVisible: false,
@@ -52,6 +66,11 @@ export default {
       ],
       contentEditor: "",
       document_title: "测试文档",
+      shareDialogVisible: false,
+      link1: "",
+      link2: "",
+      share_code_y: "",
+      share_code_n: "",
     };
   },
   mounted() {
@@ -68,7 +87,7 @@ export default {
         "italic",
         "strike",
         "link",
-        {
+        /* {
           hotkey: "",
           name: "at",
           tipPosition: "s",
@@ -79,10 +98,21 @@ export default {
           click() {
             that.atOthers();
           },
-        },
+        }, */
+        /* {
+          hotkey: "",
+          name: "share",
+          tipPosition: "s",
+          tip: "分享",
+          className: "right",
+          icon: `<img style="height: 16px" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='none' d='M0 0h24v24H0z'/><path d='M12 22A9 9 0 1 0 3 13h2a7 7 0 1 1 10 0h2a9 9 0 0 0-9 9zm-2-9a5 5 0 1 0 10 0H10zm-1-7h2v2h-2zm4 0h2v2h-2zm-8 0h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm1-2v2h2V6h-2zm-4 0h2v2h-2zm-4 0h2v2H7zm-1 4v2h2v-2H6zm4 0h2v2h-2zm4 0h2v2h-2zm1-2v2h2v-2h-2zM6 16v-2H4v2h2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm1-2v-2h-2v2h2zM6 12H4v2h2v-2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm1-2v-2h-2v2h2zM6 8H4v2h2V8zm4 0h2V6h-2v2zm4 0h2V6h-2v2zm1-2v2h2V6h-2zM6 4H4v2h2V4zm4 0h2V2h-2v2zm4 0h2V2h-2v2zm1-2v2h2V2h-2z'/></svg>" alt="At Symbol">`,
+          click() {
+            that.showShareDialog();
+          },
+        }, */
         {
           hotkey: "",
-          name: "at",
+          name: "save",
           tipPosition: "s",
           tip: "保存",
           className: "right",
@@ -116,12 +146,10 @@ export default {
       cache: {
         enable: false,
       },
-      after: () => {
-        this.contentEditor.setValue("hello,Vditor+Vue!");
-      },
     });
+
     //获取members
-    let formData = new FormData();
+    /* let formData = new FormData();
     formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
     formData.append("project_id", this.$route.params.project_id);
     this.axios({
@@ -135,51 +163,51 @@ export default {
       .catch((err) => {
         this.$message.error("跳转失败");
         console.log(err);
-      });
-  },
-  beforeRouteEnter(to, from, next) {
-    next();
-    let formData = new FormData();
-    formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-    formData.append("document_id", to.query.document_id);
+      }); */
+    let project_id = this.$route.params.project_id;
+    let document_id = this.$route.query.document_id;
     this.axios({
-      method: "POST",
-      url: "",
-      data: formData,
+      method: "GET",
+      url: `/project/${project_id}/document/${document_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+      },
     })
       .then((res) => {
-        if (res.result == 0) {
-          next();
-        } else {
-          this.$message.error("无权限");
-          next(from.fullPath);
-        }
+        this.contentEditor.setValue(res.data.data.text);
+        this.document_title = res.data.data.doc_name;
       })
       .catch((err) => {
-        this.$message.error("跳转失败");
         console.log(err);
-        next(from.fullPath);
       });
-  },
-  beforeRouteLeave(to, from, next) {
-    next();
-    let formData = new FormData();
-    formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-    formData.append("document_id", this.$route.query.document_id);
     this.axios({
-      method: "POST",
-      url: "",
-      data: formData,
+      method: "GET",
+      url: `/project/${project_id}/document/${document_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        need_share: true,
+        can_modify: true,
+      },
     })
       .then((res) => {
-        if (res.result == 0) {
-          next();
-        } else {
-          this.$message.error("退出编辑失败");
-        }
+        this.share_code_y = res.data.data.share_code;
       })
       .catch((err) => {
-        this.$message.error("退出编辑失败");
+        console.log(err);
+      });
+    this.axios({
+      method: "GET",
+      url: `/project/${project_id}/document/${document_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        need_share: true,
+        can_modify: false,
+      },
+    })
+      .then((res) => {
+        this.share_code_n = res.data.data.share_code;
+      })
+      .catch((err) => {
         console.log(err);
       });
   },
@@ -191,20 +219,22 @@ export default {
       }
     },
     saveDoc() {
-      console.log(this.contentEditor.getValue());
       let formData = new FormData();
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("document_id", this.$route.query.document_id);
+      formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
+      formData.append("text", this.contentEditor.getValue());
+      let document_id = this.$route.query.document_id;
+      let project_id = this.$route.params.project_id;
+      console.log(this.contentEditor.getValue());
       this.axios({
-        method: "POST",
-        url: "",
+        method: "PUT",
+        url: `/project/${project_id}/document/${document_id}`,
         data: formData,
       })
         .then((res) => {
-          this.$message.success("保存成功");
+          console.log(res.data);
+          this.$message.success("保存成功！");
         })
         .catch((err) => {
-          this.$message.error("跳转失败");
           console.log(err);
         });
     },
@@ -217,6 +247,16 @@ export default {
         this.contentEditor.getValue() + "\n" + "@" + item.name
       );
       //发送消息
+    },
+    showShareDialog() {
+      // 根据您的项目和文档ID生成链接
+      const project_id = this.$route.params.project_id; // 替换为实际的项目ID
+      this.link1 = `http://8.130.12.73/api/docread?project_id=${project_id}&share_code=${this.share_code_y}`;
+      this.link2 = `http://8.130.12.73/api/docread?project_id=${project_id}&share_code=${this.share_code_n}`;
+      this.shareDialogVisible = true;
+    },
+    closeShareDialog() {
+      this.shareDialogVisible = false;
     },
   },
 };

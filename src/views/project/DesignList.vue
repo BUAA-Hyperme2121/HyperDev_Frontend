@@ -14,7 +14,7 @@
         <div class="page-list-container">
           <div class="page-list" :style="{ height: containerHeight + 'px' }">
             <div
-              v-for="(page, index) in pagelist"
+              v-for="(page, index) in page_list"
               :key="index"
               class="page-item"
             >
@@ -24,12 +24,13 @@
                 @mouseleave="page.hover = false"
               >
                 <i class="el-icon-notebook-2" style="font-size: 50px"></i>
-                <div class="icon-overlay" v-show="page.hover">
+                <div class="icon-overlay">
+                  <!--div class="icon-overlay" v-show="page.hover"-->
                   <div class="icon-options">
                     <el-tooltip content="编辑" placement="top">
                       <i
                         class="el-icon-edit"
-                        @click="getOldDocumentToken(page.page_id)"
+                        @click="getOldDocumentToken(page.id)"
                       ></i>
                     </el-tooltip>
                     <el-tooltip content="重命名" placement="top">
@@ -41,13 +42,13 @@
                     <el-tooltip content="删除" placement="top">
                       <i
                         class="el-icon-delete"
-                        @click="removeSingleDocument(page.page_id)"
+                        @click="removeSingleDocument(page.id)"
                       ></i>
                     </el-tooltip>
                   </div>
                 </div>
               </div>
-              <div class="page-title">{{ page.page_title }}</div>
+              <div class="page-title">{{ page.page_name }}</div>
             </div>
           </div>
         </div>
@@ -87,7 +88,7 @@
                     type="text"
                     maxlength="20"
                     placeholder="最多可以输入20字"
-                    v-model="newDocumentTitle"
+                    v-model="newPageTitle"
                   />
                 </div>
               </div>
@@ -145,9 +146,7 @@
             <!-- 这里传入 输入的内容新标题 -->
             <button
               class="btn-fav"
-              @click="
-                renameDocument(curOperationDoc.page_id, renameDocumentTitle)
-              "
+              @click="renameDocument(curOperationPage.id, renameDocumentTitle)"
             >
               确定
             </button>
@@ -167,42 +166,40 @@ JSON.parse(localStorage.getItem('team')).team_id
 JSON.parse(localStorage.getItem('project')).project_id
  */
 
-const DEFAULT_DOC_NAME = "不知道叫什么的";
-const DEFAULT_RENAME = "不知道叫什么的";
-
+const DEFAULT_DOC_NAME = "不知道叫什么的页面";
+const DEFAULT_RENAME = "";
+import qs from "qs";
 export default {
   name: "CollaborativeManagePage",
   data() {
     return {
-      newDocumentTitle: DEFAULT_DOC_NAME,
+      newPageTitle: DEFAULT_DOC_NAME,
       renameDocumentTitle: DEFAULT_RENAME,
       containerHeight: 550,
       // VERY IMPORTANT 当前正在操作的文档
       pagelist: [
-        { page_title: "第1个页面", page_id: 1, hover: false },
-        { page_title: "第2个页面", page_id: 1, hover: false },
-        { page_title: "第3个页面", page_id: 1, hover: false },
-        { page_title: "第4个页面", page_id: 1, hover: false },
-        { page_title: "第5个页面", page_id: 1, hover: false },
-        { page_title: "第1个页面", page_id: 1, hover: false },
-        { page_title: "第2个页面", page_id: 1, hover: false },
-        { page_title: "第3个页面", page_id: 1, hover: false },
-        { page_title: "第4个页面", page_id: 1, hover: false },
-        { page_title: "第5个页面", page_id: 1, hover: false },
+        { page_name: "第1个页面", page_id: 1, hover: false },
+        { page_name: "第2个页面", page_id: 1, hover: false },
+        { page_name: "第3个页面", page_id: 1, hover: false },
+        { page_name: "第4个页面", page_id: 1, hover: false },
+        { page_name: "第5个页面", page_id: 1, hover: false },
+        { page_name: "第1个页面", page_id: 1, hover: false },
+        { page_name: "第2个页面", page_id: 1, hover: false },
+        { page_name: "第3个页面", page_id: 1, hover: false },
+        { page_name: "第4个页面", page_id: 1, hover: false },
+        { page_name: "第5个页面", page_id: 1, hover: false },
       ],
-      curOperationDoc: {
-        page_id: 7,
-        page_title: "1-标题",
+      curOperationPage: {
+        id: 7,
+        page_name: "1-标题",
       },
       // 当前项目下已经创建的文件列表
       page_list: [],
 
-      // 是否浮现创建新文档的悬浮窗
       ifShowTheCreateNewDocWindow: false,
-      // 切换进入新文档输入框的属性
+
       changeToNewTitleInput: false,
 
-      // 是否浮现重命名文档的悬浮窗
       ifShowTheRenameDocWindow: false,
 
       changeToRenameInput: false,
@@ -213,17 +210,17 @@ export default {
   },
   methods: {
     async getCurrentDocumentList() {
-      let formData = new FormData();
       let project_id = this.$route.params.project_id;
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("project_id", project_id);
       this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/list_document",
-        data: formData,
+        method: "GET",
+        url: `/project/${project_id}/prototype`,
+        params: {
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        },
       })
         .then((res) => {
-          this.page_list = res.data.page_list;
+          this.page_list = res.data.data;
+          console.log(this.page_list);
         })
         .catch((err) => {
           console.log(err);
@@ -242,32 +239,27 @@ export default {
       this.ifShowTheCreateNewDocWindow = false;
       let formData = new FormData();
       let project_id = this.$route.params.project_id;
-      let page_title = this.newDocumentTitle;
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("project_id", project_id);
-      formData.append("page_title", page_title);
-      this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/create_token",
-        data: formData,
-      })
-        .then((res) => {
-          let page_id = res.data.page_id;
-          this.$router.push({
-            path: "/project/design",
-            query: {
-              page_id: page_id,
-            },
-          });
+      let page_name = this.newPageTitle;
+      formData.append("page_name", page_name);
+      formData.append("jwt", JSON.parse(localStorage.getItem("jwt"))),
+        this.axios({
+          method: "POST",
+          url: `/project/${project_id}/prototype`,
+          data: formData,
         })
-        .catch((err) => {
-          console.log(err);
-        });
+          .then((res) => {
+            this.$message.success("创建成功");
+            this.getCurrentDocumentList();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
     },
     async getOldDocumentToken(pageID) {
       let page_id = pageID;
+      let project_id = this.$route.params.project_id;
       this.$router.push({
-        path: "/project/design",
+        path: `/project/${project_id}/design`,
         query: {
           page_id: page_id,
         },
@@ -279,20 +271,39 @@ export default {
      * @param {string} pageID 要删除的文档的id
      */
     async removeSingleDocument(pageID) {
-      let formData = new FormData();
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("page_id", pageID);
+      let project_id = this.$route.params.project_id;
+      let prototype_id = pageID;
+      let data = {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        try_modify: true,
+      };
+      let jsonData = qs.stringify(data);
       this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/delete_document",
-        data: formData,
+        method: "PATCH",
+        url: `/project/${project_id}/prototype/${prototype_id}`,
+        data: jsonData,
       })
         .then((res) => {
-          if (res.result == 0) {
-            this.$message.success("原型删除成功！");
-            this.page_list = res.data.page_list;
+          console.log(res);
+          if (res.data.result != 0) {
+            this.$message.error("无法获得权限");
+            return;
           } else {
-            this.$message.error("无权限");
+            let formData2 = new FormData();
+            formData2.append("jwt", JSON.parse(localStorage.getItem("jwt")));
+            this.axios({
+              method: "DELETE",
+              url: `/project/${project_id}/prototype/${prototype_id}`,
+              data: formData2,
+            })
+              .then((res) => {
+                console.log(res);
+                this.$message.success("删除成功");
+                this.getCurrentDocumentList();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
           }
         })
         .catch((err) => {
@@ -302,26 +313,41 @@ export default {
     async renameDocument(pageID, newTitle) {
       /// 先关闭窗口
       this.ifShowTheRenameDocWindow = false;
-
-      let formData = new FormData();
-      let page_id = pageID;
-      let page_title = newTitle;
-
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("page_id", page_id);
-      formData.append("page_title", page_title);
+      let project_id = this.$route.params.project_id;
+      let prototype_id = pageID;
+      let data = {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        try_modify: true,
+      };
+      let jsonData = qs.stringify(data);
       this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/rename_document",
-        data: formData,
+        method: "PATCH",
+        url: `/project/${project_id}/prototype/${prototype_id}`,
+        data: jsonData,
       })
         .then((res) => {
           console.log(res);
-          if (res.result == 0) {
-            this.$message.success("文档重命名成功！");
-            this.page_list = res.data.page_list;
+          if (res.data.result != 0) {
+            this.$message.error("无法获得权限");
+            return;
           } else {
-            this.$message.error("无权限");
+            let formData2 = new FormData();
+            formData2.append("jwt", JSON.parse(localStorage.getItem("jwt")));
+            formData2.append("page_name", newTitle);
+            this.axios({
+              method: "PUT",
+              url: `/project/${project_id}/prototype/${prototype_id}`,
+              data: formData2,
+            })
+              .then((res) => {
+                console.log(res);
+                this.$message.success("重命名成功");
+                this.getCurrentDocumentList();
+                this.releaseAuthority(project_id, prototype_id);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
           }
         })
         .catch((err) => {
@@ -342,13 +368,19 @@ export default {
     openRenameDocWindow(page) {
       console.log(page);
       // 记录当前正在操作的文件对象
-      this.curOperationDoc.page_id = page.page_id;
+      this.curOperationPage.id = page.id;
       // 切换回原来的按钮
       this.changeToRenameInput = false;
       // 默认为  文件在更改之前 的名字
-      this.renameDocumentTitle = page.page_title;
+      this.renameDocumentTitle = page.page_name;
       // 打开窗口
       this.ifShowTheRenameDocWindow = true;
+    },
+    releaseAuthority(project_id, prototype_id) {
+      this.axios.patch(`/project/${project_id}/prototype/${prototype_id}`, {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        try_modify: false,
+      });
     },
   },
 };
@@ -393,10 +425,10 @@ export default {
 
 .icon-overlay {
   position: absolute;
-  top: 0;
+  top: -15px;
   left: 0;
   width: 100%;
-  height: 90px;
+  height: 100px;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;

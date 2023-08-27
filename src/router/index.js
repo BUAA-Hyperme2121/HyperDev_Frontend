@@ -104,6 +104,11 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/docread",
+    name: "docread",
+    component: () => import("../views/project/DocRead.vue"),
+  },
 ];
 
 export default new Router({
