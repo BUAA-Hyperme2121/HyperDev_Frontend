@@ -6,12 +6,12 @@
         shape="square"
         fit="fill"
         :src="avatar"
-        style="height: 45px; width: 45px; margin-right: 8px;"
+        style="height: 45px; width: 45px; margin-right: 8px"
       ></el-avatar>
     </div>
     <!-- 名称（昵称/真实姓名) -->
     <div class="chat-name">
-      <span>{{ item.team_name }}</span>
+      <span>{{ item.team.team_name }}</span>
     </div>
     <!-- 未读消息数 -->
     <!-- <div class="unread">
@@ -22,10 +22,15 @@
 
 <script>
 export default {
-  // 随机团队头像
-   avatar: "https://picsum.photos/200/200",
+  data() {
+    return {
+      // 随机团队头像
+      avatar: "https://picsum.photos/200/200",
+    };
+  },
+
   // 接收传来的props
-  props: ["item"]
+  props: ["item"],
 };
 </script>
 
