@@ -15,6 +15,8 @@ Vue.prototype.axios = axios;
 Vue.use(ElementUI, { size: "small" });
 Vue.config.productionTip = false;
 
+axios.defaults.baseURL = "http://8.130.12.73/api";
+// axios.defaults.withCredentials = true;
 new Vue({
   el: "#app",
   router,
