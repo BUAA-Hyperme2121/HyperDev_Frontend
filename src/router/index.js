@@ -29,9 +29,10 @@ const routes = [
     component: () => import("../views/RegisterView.vue"),
   },
   {
-    path: "/project",
-    redirect: "/project/designlist",
+    path: "/project/:project_id",
+    redirect: "/project/:project_id/designlist",
     name: "project",
+    props: true,
     component: () => import("../views/ProjectView.vue"),
     children: [
       {
@@ -47,7 +48,7 @@ const routes = [
       {
         path: "doc",
         name: "doc",
-        component: () => import("../views/project/DocPage.vue"),
+        component: () => import("../views/project/Doc2Page.vue"),
       },
       {
         path: "design",

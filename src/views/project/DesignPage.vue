@@ -1,3 +1,4 @@
+<!-- eslint-disable no-unused-vars -->
 <template>
   <div class="home">
     <Toolbar />
@@ -65,6 +66,52 @@ export default {
     RealTimeComponentList,
     CanvasAttr,
   },
+  beforeRouteEnter(to, from, next) {
+    next();
+    let formData = new FormData();
+    formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
+    formData.append("page_id", to.query.page_id);
+    this.axios({
+      method: "POST",
+      url: "",
+      data: formData,
+    })
+      .then((res) => {
+        if (res.result == 0) {
+          next();
+        } else {
+          this.$message.error("无权限");
+          next(from.fullPath);
+        }
+      })
+      .catch((err) => {
+        this.$message.error("跳转失败");
+        console.log(err);
+        next(from.fullPath);
+      });
+  },
+  beforeRouteLeave(to, from, next) {
+    next();
+    let formData = new FormData();
+    formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
+    formData.append("page_id", this.$route.query.page_id);
+    this.axios({
+      method: "POST",
+      url: "",
+      data: formData,
+    })
+      .then((res) => {
+        if (res.result == 0) {
+          next();
+        } else {
+          this.$message.error("退出编辑失败");
+        }
+      })
+      .catch((err) => {
+        this.$message.error("退出编辑失败");
+        console.log(err);
+      });
+  },
   data() {
     return {
       activeName: "attr",
@@ -85,21 +132,25 @@ export default {
   },
   methods: {
     restore() {
-      // 用保存的数据恢复画布
-      if (localStorage.getItem("canvasData")) {
-        setDefaultcomponentData(JSON.parse(localStorage.getItem("canvasData")));
-        this.$store.commit(
-          "setComponentData",
-          JSON.parse(localStorage.getItem("canvasData"))
-        );
-      }
-
-      if (localStorage.getItem("canvasStyle")) {
-        this.$store.commit(
-          "setCanvasStyle",
-          JSON.parse(localStorage.getItem("canvasStyle"))
-        );
-      }
+      let formData = new FormData();
+      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
+      formData.append("page_id", this.$route.query.page_id);
+      this.axios({
+        method: "POST",
+        url: "",
+        data: formData,
+      })
+        .then((res) => {
+          let pageData = res.data.page_data;
+          let pageStyle = res.data.page_style;
+          setDefaultcomponentData(JSON.parse(pageData));
+          this.$store.commit("setComponentData", JSON.parse(pageData));
+          this.$store.commit("setCanvasStyle", JSON.parse(pageStyle));
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$router.back();
+        });
     },
 
     handleDrop(e) {

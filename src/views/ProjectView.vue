@@ -19,11 +19,13 @@
         @mouseleave="mouseLeave"
         @select="handleMenuSelect"
       >
-        <el-menu-item index="/project/designlist">
+        <el-menu-item
+          :index="`/project/${$route.params.project_id}/designlist`"
+        >
           <i class="el-icon-edit"></i>
           <span>页面设计</span>
         </el-menu-item>
-        <el-menu-item index="/project/doclist">
+        <el-menu-item :index="`/project/${$route.params.project_id}/doclist`">
           <i class="el-icon-document"></i>
           <span>项目文档</span>
         </el-menu-item>
@@ -33,18 +35,22 @@
         </el-menu-item>
       </el-menu>
     </el-aside>
-    <el-main style="width: 90%; margin-left: 10%">
+    <el-main style="width: 90%; margin-left: 10%; padding-top: 0px">
       <RouterView></RouterView>
     </el-main>
   </div>
 </template>
 <script>
 export default {
+  props: ["project_id"],
   data() {
     return {
       isCollapse: true,
       activeIndex: 1,
     };
+  },
+  mounted() {
+    console.log(this.$route.params.project_id);
   },
   methods: {
     mouseOver() {

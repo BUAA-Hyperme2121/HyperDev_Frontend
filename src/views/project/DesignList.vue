@@ -2,7 +2,7 @@
   <div class="collaborative-manage-page-container">
     <div class="manage-page-container">
       <div class="operation-container">
-        <div class="operation-title">操作列表</div>
+        <div class="operation-title" @click="jumpTo">工作台</div>
         <div class="operation-notice">新建设计原型</div>
         <div
           class="create-new-doc-area"
@@ -10,73 +10,47 @@
         ></div>
       </div>
       <div class="table-container">
-        <el-table :data="document_list" style="width: 100%" border height="550">
-          <el-table-column prop="document_title" label="页面标题" width="190">
-          </el-table-column>
-
-          <el-table-column prop="creator_name" label="页面创建者" width="130">
-          </el-table-column>
-
-          <el-table-column
-            label="页面创建时间"
-            width="170"
-            style="display: flex; align-items: center"
-          >
-            <template #default="scope">
-              <i class="el-icon-time"></i>
-              <!-- <span style="margin-left: 10px;">{{scope.row.created_time}}</span> -->
-              <span style="margin-left: 10px">{{
-                scope.row.created_time.substring(0, 10)
-              }}</span>
-              <span style="margin-left: 3px">{{
-                scope.row.created_time.substring(11, 16)
-              }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="最后更新时间" width="170">
-            <template #default="scope">
-              <i class="el-icon-time"></i>
-              <!-- <span style="margin-left: 10px;">{{scope.row.updated_time}}</span> -->
-              <span style="margin-left: 10px">{{
-                scope.row.updated_time.substring(0, 10)
-              }}</span>
-              <span style="margin-left: 3px">{{
-                scope.row.updated_time.substring(11, 16)
-              }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            label="操作"
-            style="
-              display: flex;
-              flex-direction: column;
-              align-items: stretch;
-              justify-content: space-between;
-            "
-          >
-            <template #default="scope">
-              <el-button
-                size="mini"
-                type="primary"
-                @click="openRenameDocWindow(scope.row)"
-                >重命名</el-button
+        <div class="operation-title">原型设计列表</div>
+        <div class="page-list-container">
+          <div class="page-list" :style="{ height: containerHeight + 'px' }">
+            <div
+              v-for="(page, index) in pagelist"
+              :key="index"
+              class="page-item"
+            >
+              <div
+                class="page-icon-wrapper"
+                @mouseover="page.hover = true"
+                @mouseleave="page.hover = false"
               >
-              <el-button
-                size="mini"
-                @click="getOldDocumentToken(scope.row.document_id)"
-                >编辑</el-button
-              >
-              <el-button
-                size="mini"
-                type="danger"
-                @click="removeSingleDocument(scope.row.document_id)"
-                >删除</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
+                <i class="el-icon-notebook-2" style="font-size: 50px"></i>
+                <div class="icon-overlay" v-show="page.hover">
+                  <div class="icon-options">
+                    <el-tooltip content="编辑" placement="top">
+                      <i
+                        class="el-icon-edit"
+                        @click="getOldDocumentToken(page.page_id)"
+                      ></i>
+                    </el-tooltip>
+                    <el-tooltip content="重命名" placement="top">
+                      <i
+                        class="el-icon-edit-outline"
+                        @click="openRenameDocWindow(page)"
+                      ></i>
+                    </el-tooltip>
+                    <el-tooltip content="删除" placement="top">
+                      <i
+                        class="el-icon-delete"
+                        @click="removeSingleDocument(page.page_id)"
+                      ></i>
+                    </el-tooltip>
+                  </div>
+                </div>
+              </div>
+              <div class="page-title">{{ page.page_title }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -172,7 +146,7 @@
             <button
               class="btn-fav"
               @click="
-                renameDocument(curOperationDoc.document_id, renameDocumentTitle)
+                renameDocument(curOperationDoc.page_id, renameDocumentTitle)
               "
             >
               确定
@@ -193,37 +167,35 @@ JSON.parse(localStorage.getItem('team')).team_id
 JSON.parse(localStorage.getItem('project')).project_id
  */
 
-const DEFAULT_DOC_NAME = "未命名文档";
-const DEFAULT_RENAME = "新的文档名称";
+const DEFAULT_DOC_NAME = "不知道叫什么的";
+const DEFAULT_RENAME = "不知道叫什么的";
 
-/**
- *   /projectdetail/collaborativeeditor
- *   /projectdetail/collaborativemanage
- *
- *    /project
- */
-/// localStorage 说明
-/// document_token    既可以是新建的文件的document_token，也可以是获取之前存在的document_token
-/// token             用户登录的token
-/// project           当前项目的信息
 export default {
   name: "CollaborativeManagePage",
   data() {
     return {
       newDocumentTitle: DEFAULT_DOC_NAME,
       renameDocumentTitle: DEFAULT_RENAME,
+      containerHeight: 550,
       // VERY IMPORTANT 当前正在操作的文档
+      pagelist: [
+        { page_title: "第1个页面", page_id: 1, hover: false },
+        { page_title: "第2个页面", page_id: 1, hover: false },
+        { page_title: "第3个页面", page_id: 1, hover: false },
+        { page_title: "第4个页面", page_id: 1, hover: false },
+        { page_title: "第5个页面", page_id: 1, hover: false },
+        { page_title: "第1个页面", page_id: 1, hover: false },
+        { page_title: "第2个页面", page_id: 1, hover: false },
+        { page_title: "第3个页面", page_id: 1, hover: false },
+        { page_title: "第4个页面", page_id: 1, hover: false },
+        { page_title: "第5个页面", page_id: 1, hover: false },
+      ],
       curOperationDoc: {
-        document_id: 7,
-        creator_id: 0,
-        document_title: "1-标题",
-        document_content:
-          "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
-        created_time: "2022-08-04T14:56:22.274",
-        updated_time: "",
+        page_id: 7,
+        page_title: "1-标题",
       },
       // 当前项目下已经创建的文件列表
-      document_list: [],
+      page_list: [],
 
       // 是否浮现创建新文档的悬浮窗
       ifShowTheCreateNewDocWindow: false,
@@ -240,52 +212,23 @@ export default {
     this.getCurrentDocumentList();
   },
   methods: {
-    /**
-     * 初始化
-     * 获取 当前项目 的 文档列表
-     */
     async getCurrentDocumentList() {
       let formData = new FormData();
-      let token = localStorage.getItem("token");
-      let project_id = this.$route.query.project_id;
-
-      formData.append("token", token);
+      let project_id = this.$route.params.project_id;
+      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
       formData.append("project_id", project_id);
-
-      // 自定义加载实例
-
-      console.log(this);
-
       this.axios({
         method: "POST",
         url: "https://summer.super2021.com/api/document/list_document",
         data: formData,
       })
         .then((res) => {
-          // 关闭自定义加载实例
-
-          switch (res.data.result) {
-            case 1: {
-              this.$message.success("获取当前项目的文档列表成功！");
-
-              console.log(res.data);
-              this.document_list = res.data.document_list;
-
-              break;
-            }
-            default:
-              this.$message.warning("获取当前项目的文档列表失败！");
-              break;
-          }
+          this.page_list = res.data.page_list;
         })
         .catch((err) => {
           console.log(err);
         });
     },
-
-    /**
-     * 除了点击“确定”以外其他退出新建文档窗口的方式
-     */
     closeCreateNewDocWindow() {
       // 如果是不点击确定就退出，那么就需要还原更改的操作
       this.newDocumentTitle = DEFAULT_DOC_NAME;
@@ -294,180 +237,79 @@ export default {
       // 切换回原来的按钮
       this.changeToNewTitleInput = false;
     },
-    /**
-     * 获取新建文档的token，跳转到对应的编辑页面，
-     * 并且将新建的文档的document_token 存到 localStorage
-     * token
-     * project_id
-     * document_title
-     */
     async getNewDocumentToken() {
       // 先关掉窗口
       this.ifShowTheCreateNewDocWindow = false;
-
       let formData = new FormData();
-
-      let token = localStorage.getItem("token");
-      let project_id = this.$route.query.project_id;
-      let document_title = this.newDocumentTitle;
-
-      formData.append("token", token);
+      let project_id = this.$route.params.project_id;
+      let page_title = this.newDocumentTitle;
+      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
       formData.append("project_id", project_id);
-      formData.append("document_title", document_title);
-      // 自定义加载实例
-
+      formData.append("page_title", page_title);
       this.axios({
         method: "POST",
         url: "https://summer.super2021.com/api/document/create_token",
         data: formData,
       })
         .then((res) => {
-          // 关闭自定义加载实例
-
-          switch (res.data.result) {
-            case 1: {
-              this.$message.success("加载成功！");
-              /**
-               * 这是至关重要的一步
-               */
-              localStorage.setItem("document_token", res.data.document_token);
-              console.log("现在是新拿到的document_token");
-              console.log(localStorage.getItem("document_token"));
-
-              this.$route.push("/projectdetail/collaborative-editor");
-
-              /**
-               * 直接使得当前页面跳转到对应的链接
-               */
-              // let Editor_URL = `http://152.136.213.16/?document_token=${res.data.document_token}`;
-              // window.location.href = Editor_URL;
-
-              break;
-            }
-            default:
-              this.$message.warning("加载失败！");
-              break;
-          }
+          let page_id = res.data.page_id;
+          this.$router.push({
+            path: "/project/design",
+            query: {
+              page_id: page_id,
+            },
+          });
         })
         .catch((err) => {
           console.log(err);
         });
     },
-
-    /**
-     * 编辑文件
-     * 获取已有的文件的 document_token
-     * 并且将获取到的 希望编辑的文档的document_token 存到 localStorage
-     * @param {string} documentID 想要继续编辑的文件ID
-     */
-    async getOldDocumentToken(documentID) {
-      let formData = new FormData();
-
-      let token = localStorage.getItem("token");
-      let project_id = this.$route.query.project_id;
-      let document_id = documentID;
-
-      formData.append("token", token);
-      formData.append("project_id", project_id);
-      /// 要继续编辑的文档的id
-      formData.append("document_id", document_id);
-
-      // 自定义加载实例
-
-      this.axios({
-        method: "POST",
-        url: "https://summer.super2021.com/api/document/edit_document",
-        data: formData,
-      })
-        .then((res) => {
-          // 关闭自定义加载实例
-
-          switch (res.data.result) {
-            case 1: {
-              this.$message.success("加载成功！");
-              /**
-               * 这是至关重要的一步
-               */
-              localStorage.setItem("document_token", res.data.document_token);
-
-              this.$route.push("/projectdetail/collaborative-editor");
-
-              break;
-            }
-            default:
-              this.$message.warning("加载失败！");
-              break;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    async getOldDocumentToken(pageID) {
+      let page_id = pageID;
+      this.$router.push({
+        path: "/project/design",
+        query: {
+          page_id: page_id,
+        },
+      });
     },
 
     /**
      * 删除单个文档（未测试）
-     * @param {string} documentID 要删除的文档的id
+     * @param {string} pageID 要删除的文档的id
      */
-    async removeSingleDocument(documentID) {
+    async removeSingleDocument(pageID) {
       let formData = new FormData();
-      let token = localStorage.getItem("token");
-      let project_id = this.$route.query.project_id;
-      let document_id = documentID;
-
-      formData.append("token", token);
-      formData.append("project_id", project_id);
-      formData.append("document_id", document_id);
-
+      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
+      formData.append("page_id", pageID);
       this.axios({
         method: "POST",
         url: "https://summer.super2021.com/api/document/delete_document",
         data: formData,
       })
         .then((res) => {
-          switch (res.data.result) {
-            case 1: {
-              this.$message.success("删除文档成功！");
-              console.log("这是删除后的文档列表");
-              console.log(res.data.document_list);
-
-              this.document_list = res.data.document_list;
-              break;
-            }
-            default:
-              this.$message.warning("删除文档失败！");
-              break;
+          if (res.result == 0) {
+            this.$message.success("原型删除成功！");
+            this.page_list = res.data.page_list;
+          } else {
+            this.$message.error("无权限");
           }
         })
         .catch((err) => {
           console.log(err);
         });
     },
-
-    /**
-     * 重命名某个文档
-     * @param {string} documentID 需要重命名的文档id
-     * @param {string} newTitle 重新命名的新文档名字
-     */
-    async renameDocument(documentID, newTitle) {
-      console.log(
-        `想要重命名的文件id是 :${documentID}, 新的名字是 :${newTitle}`
-      );
-
+    async renameDocument(pageID, newTitle) {
       /// 先关闭窗口
       this.ifShowTheRenameDocWindow = false;
 
       let formData = new FormData();
+      let page_id = pageID;
+      let page_title = newTitle;
 
-      let token = localStorage.getItem("token");
-      let project_id = this.$route.query.project_id;
-      let document_id = documentID;
-      let document_title = newTitle;
-
-      formData.append("token", token);
-      formData.append("project_id", project_id);
-      formData.append("document_id", document_id);
-      formData.append("document_title", document_title);
-
+      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
+      formData.append("page_id", page_id);
+      formData.append("page_title", page_title);
       this.axios({
         method: "POST",
         url: "https://summer.super2021.com/api/document/rename_document",
@@ -475,31 +317,17 @@ export default {
       })
         .then((res) => {
           console.log(res);
-
-          switch (res.data.result) {
-            case 1: {
-              this.$message.success("文档重命名成功！");
-              console.log("这是重命名后的文档列表");
-              console.log(res.data.document_list);
-
-              this.document_list = res.data.document_list;
-
-              break;
-            }
-            default:
-              // UPDATE 更新了文档重命名的返回信息
-              this.$message.warning("文档重命名失败！" + res.data.message);
-              break;
+          if (res.result == 0) {
+            this.$message.success("文档重命名成功！");
+            this.page_list = res.data.page_list;
+          } else {
+            this.$message.error("无权限");
           }
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    /**
-     * 除了点击“确定”以外其他的退出重命名窗口的方式
-     * 有一些注意事项
-     */
     closeRenameDocWindow() {
       // 如果是不点击确定就退出，那么就需要还原被更改的数据
       this.renameDocumentTitle = DEFAULT_RENAME;
@@ -508,20 +336,17 @@ export default {
       // 关闭窗口再切换回原来的按钮
       this.changeToRenameInput = false;
     },
-    /**
-     * VERY IMPORTANT NOTE
-     * 这里在打开重命名文件窗口时，需要传入这个文件对象
-     * 这里是因为打开重命名窗口和发送重命名请求是两端，
-     *    打开重命名窗口不代表一定会重命名
-     * @param {document} item
-     */
-    openRenameDocWindow(item) {
+    jumpTo() {
+      this.$router.push("/project/1/design?page_id=1");
+    },
+    openRenameDocWindow(page) {
+      console.log(page);
       // 记录当前正在操作的文件对象
-      this.curOperationDoc = item;
+      this.curOperationDoc.page_id = page.page_id;
       // 切换回原来的按钮
       this.changeToRenameInput = false;
       // 默认为  文件在更改之前 的名字
-      this.renameDocumentTitle = item.document_title;
+      this.renameDocumentTitle = page.page_title;
       // 打开窗口
       this.ifShowTheRenameDocWindow = true;
     },
@@ -530,18 +355,102 @@ export default {
 </script>
 
 <style scoped>
+.page-list-container {
+  height: 500px;
+}
+
+.page-list {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.page-item {
+  width: 25%;
+  text-align: center;
+  position: relative;
+  margin-top: 20px; /* 修改为此行代码 */
+  height: 150px;
+  margin-bottom: -30px;
+}
+
+.page-icon-wrapper {
+  position: relative;
+}
+
+.page-icon {
+  width: 100px;
+}
+
+.page-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.icon-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 10%;
+}
+
+.icon-overlay:hover {
+  opacity: 1;
+}
+
+.icon-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-options i {
+  margin-right: 10px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Custom scrollbar styles */
+.page-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-list-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.page-list-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.page-list-container::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
 .operation-container {
   text-align: center;
   float: left;
   margin-top: 40px;
   margin-left: 5%;
   width: 28%;
-  height: 550px;
+  height: 562px;
   border: 2px solid #808080;
   border-radius: 0.75rem;
   overflow: hidden;
 }
-.operation-container .operation-title {
+.operation-title {
   margin-top: 10px;
   margin-bottom: 10px;
   padding-bottom: 10px;

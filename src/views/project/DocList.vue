@@ -2,7 +2,7 @@
   <div class="collaborative-manage-page-container">
     <div class="manage-page-container">
       <div class="operation-container">
-        <div class="operation-title">操作列表</div>
+        <div class="operation-title" @click="jumpTo">操作列表</div>
         <div class="operation-notice">新建共享文档</div>
         <div
           class="create-new-doc-area"
@@ -30,7 +30,7 @@
             width="170"
             style="display: flex; align-items: center"
           >
-            <template #default="scope">
+            <template slot-scope="scope">
               <i class="el-icon-time"></i>
               <!-- <span style="margin-left: 10px;">{{scope.row.created_time}}</span> -->
               <span style="margin-left: 10px">{{
@@ -50,7 +50,7 @@
               justify-content: space-between;
             "
           >
-            <template #default="scope">
+            <template slot-scope="scope">
               <el-button type="primary" @click="openRenameDocWindow(scope.row)"
                 >重命名</el-button
               >
@@ -241,7 +241,7 @@ export default {
   methods: {
     async getCurrentDocumentList() {
       let formData = new FormData();
-      let project_id = this.$route.query.project_id;
+      let project_id = this.$route.params.project_id;
       formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
       formData.append("project_id", project_id);
       this.axios({
@@ -268,7 +268,7 @@ export default {
       // 先关掉窗口
       this.ifShowTheCreateNewDocWindow = false;
       let formData = new FormData();
-      let project_id = this.$route.query.project_id;
+      let project_id = this.$route.params.project_id;
       let document_title = this.newDocumentTitle;
       formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
       formData.append("project_id", project_id);
@@ -280,7 +280,7 @@ export default {
       })
         .then((res) => {
           let document_id = res.data.document_id;
-          this.$route.push({
+          this.$router.push({
             path: "/project/doc",
             query: {
               document_id: document_id,
@@ -293,7 +293,7 @@ export default {
     },
     async getOldDocumentToken(documentID) {
       let document_id = documentID;
-      this.$route.push({
+      this.$router.push({
         path: "/project/doc",
         query: {
           document_id: document_id,
@@ -373,6 +373,9 @@ export default {
       this.changeToRenameInput = false;
       this.renameDocumentTitle = item.document_title;
       this.ifShowTheRenameDocWindow = true;
+    },
+    jumpTo() {
+      this.$router.push("/project/1/doc?document_id=1");
     },
   },
 };
