@@ -82,6 +82,7 @@
 </template>
 
 <script>
+import qs from "qs";
 import ChatObjItem from "@/components/chat/ChatObjItem.vue";
 import ChatContentItem from "@/components/chat/ChatContentItem.vue";
 // import At from 'vue-at' // for content-editable
@@ -95,212 +96,7 @@ export default {
   data() {
     return {
       input: "",
-      chatObjList: [
-        {
-          id: 1,
-          name: "张三",
-          avatar: "https://picsum.photos/200/200",
-          unread: 10,
-          socket: null,
-          chatContentList: [
-            {
-              id: 1,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 2,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 3,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 4,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 5,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 6,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 7,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-          ],
-        },
-        {
-          id: 2,
-          name: "李四",
-          avatar: "https://picsum.photos/200/200",
-          unread: 0,
-          socket: null,
-          chatContentList: [
-            {
-              id: 1,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 2,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 3,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 4,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 5,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 6,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 7,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-          ],
-        },
-        {
-          id: 3,
-          name: "王五",
-          avatar: "https://picsum.photos/200/200",
-          unread: 0,
-          socket: null,
-          chatContentList: [
-            {
-              id: 1,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 2,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 3,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 4,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 5,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 6,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 7,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-          ],
-        },
-        {
-          id: 4,
-          name: "赵六",
-          avatar: "https://picsum.photos/200/200",
-          unread: 0,
-          socket: null,
-          chatContentList: [
-            {
-              id: 1,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 2,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 3,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 4,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 5,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 6,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-            {
-              id: 7,
-              avatar: "https://picsum.photos/200/200",
-              date: "2021-08-01",
-              content: "你好",
-            },
-          ],
-        },
-      ],
+      chatObjList: [],
       // 当前聊天对象的聊天内容
       chattingContentList: [],
       // 当前聊天的对象
@@ -314,15 +110,39 @@ export default {
     sendMsg() {
       console.log(this.content);
 
+      // 发送消息
       this.chattingObj.socket.send(
         JSON.stringify({
-          id: 1,
+          user_id: this.$store.state.userInfo.id,
           avatar: "https://picsum.photos/200/200",
           // 获取当前时间
           date: new Date().toLocaleString(),
           content: this.content,
         })
       );
+
+      // 存储聊天内容
+      this.axios({
+        method: "post",
+        url: "/chat/chatrecord/",
+        data: qs.stringify({
+          user_id: this.$store.state.userInfo.id,
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+          team_id: this.chattingObj.id,
+          chat: this.content,
+        }),
+      })
+        .then((res) => {
+          // 保存聊天内容
+          // this.chattingObj.chatContentList.push(res.data.data);
+        })
+        .catch((err) => {
+          //提示获取失败
+          this.$message({
+            message: "保存聊天内容失败",
+            type: "error",
+          });
+        });
 
       // 清空输入框
       this.content = "";
@@ -335,19 +155,64 @@ export default {
       this.chattingObj = item;
 
       // 更新聊天内容
+      // this.getChatContentList(item);
       this.chattingContentList = item.chatContentList;
       // 滚动到底部
       this.$refs.scrollbarRef.scrollTop = this.$refs.scrollbarRef.scrollHeight;
     },
+
+    // 获取指定聊天对象的聊天内容
+    getChatContentList(chatObj) {
+      this.axios({
+        method: "get",
+        url: "/chat/chatrecord/",
+        params: {
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+          team_id: chatObj.id,
+        },
+      })
+        .then((res) => {
+          // 保存聊天内容
+          chatObj.chatContentList = res.data.data;
+        })
+        .catch((err) => {
+          //提示获取失败
+          this.$message({
+            message: "获取聊天内容失败",
+            type: "error",
+          });
+        });
+    },
   },
   mounted() {
-    console.log(this.$refs.scrollbarRef);
+    // 获取聊天对象列表
+    this.axios({
+      method: "get",
+      url: "/team/",
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+      },
+    })
+      .then((res) => {
+        //保存团队列表
+        this.chatObjList = res.data.data;
+      })
+      .catch((err) => {
+        //提示获取失败
+        this.$message({
+          message: "获取团队列表失败",
+          type: "error",
+        });
+      });
 
-    // 滚动到底部
-    this.$refs.scrollbarRef.scrollTop = this.$refs.scrollbarRef.scrollHeight;
+    // console.log(this.$refs.scrollbarRef);
 
-    // 遍历聊天对象列表，为每个对象创建一个 WebSocket 连接
+    // 遍历聊天对象列表，获取历史记录并为每个对象创建一个 WebSocket 连接
     this.chatObjList.forEach((item) => {
+      // 获取历史聊天内容
+      this.getChatContentList(item);
+
+      // 创建 WebSocket 连接
       item.socket = new WebSocket(
         "ws://" + window.location.host + "/room/" + item.id + "/"
       );
@@ -362,11 +227,11 @@ export default {
       };
       item.socket.onclose = (e) => {
         console.log("断开连接", e);
-      }
+      };
     });
 
-    this.chattingObj = this.chatObjList[0];
-    this.chattingContentList = this.chatObjList[0].chatContentList;
+    // this.chattingObj = this.chatObjList[0];
+    // this.chattingContentList = this.chatObjList[0].chatContentList;
   },
 };
 </script>

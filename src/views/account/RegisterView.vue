@@ -19,15 +19,15 @@
         ></el-input>
       </el-form-item>
       <!-- 真实姓名 -->
-      <el-form-item label="真实姓名" prop="realname">
+      <el-form-item label="真实姓名" prop="real_name">
         <el-input
-          v-model="registerForm.realname"
+          v-model="registerForm.real_name"
           placeholder="请输入真实姓名"
         ></el-input>
       </el-form-item>
-      <el-form-item label="密码" prop="password_1">
+      <el-form-item label="密码" prop="password">
         <el-input
-          v-model="registerForm.password_1"
+          v-model="registerForm.password"
           placeholder="6~16位密码"
           show-password
         ></el-input>
@@ -43,6 +43,7 @@
         <el-input
           v-model="registerForm.email"
           placeholder="请输入邮箱"
+          @keyup.enter.native="register('registerForm')"
         ></el-input>
       </el-form-item>
       <!-- 邮箱验证码 -->
@@ -90,7 +91,7 @@ export default {
       // 注册表单
       registerForm: {
         username: "",
-        realname: "",
+        real_name: "",
         password: "",
         email: "",
         // sms_code: "",
@@ -105,7 +106,7 @@ export default {
             trigger: "blur",
           },
         ],
-        realname: [
+        real_name: [
           { required: true, message: "请输入真实姓名", trigger: "blur" },
           {
             min: 2,
@@ -157,7 +158,7 @@ export default {
             method: "post",
             url: "/user/",
             data: qs.stringify({
-              real_name: this.registerForm.realname,
+              real_name: this.registerForm.real_name,
               username: this.registerForm.username,
               password: this.registerForm.password,
               email: this.registerForm.email,

@@ -79,7 +79,7 @@
       width="30%"
       center
     >
-      <el-input placeholder="团队名称" v-model="newTeamName"></el-input>
+      <el-input placeholder="团队名称" v-model="newTeamName" @keyup.enter.native="createTeam"></el-input>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="createTeamDialogVisible = false">取消</el-button>
@@ -166,7 +166,7 @@ export default {
             type: "success",
           });
           //刷新团队列表
-          // this.getTeamList();
+          this.getTeamList();
         })
         .catch((err) => {
           //提示创建失败

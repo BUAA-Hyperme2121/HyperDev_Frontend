@@ -5,23 +5,25 @@
       <el-avatar
         shape="square"
         fit="fill"
-        :src="item.avatar"
+        :src="avatar"
         style="height: 45px; width: 45px; margin-right: 8px;"
       ></el-avatar>
     </div>
     <!-- 名称（昵称/真实姓名) -->
     <div class="chat-name">
-      <span>{{ item.name }}</span>
+      <span>{{ item.team_name }}</span>
     </div>
     <!-- 未读消息数 -->
-    <div class="unread">
+    <!-- <div class="unread">
       <el-badge v-if="item.unread" :value="item.unread" />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 export default {
+  // 随机团队头像
+   avatar: "https://picsum.photos/200/200",
   // 接收传来的props
   props: ["item"]
 };

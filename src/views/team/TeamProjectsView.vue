@@ -23,7 +23,7 @@
       title="创建项目"
       width="30%"
     >
-      <el-input placeholder="项目名称" v-model="newProjectName"> </el-input>
+      <el-input placeholder="项目名称" v-model="newProjectName" @keyup.enter.native="createProject"> </el-input>
 
       <span class="dialog-footer" slot="footer">
         <el-button @click="createProjectDialogVisible = false">取消</el-button>
