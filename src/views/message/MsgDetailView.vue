@@ -54,7 +54,7 @@
       </div> -->
       <!-- 文档链接 -->
       <div class="doc-url">
-        <a href="" @click="goDoc">文档链接</a>
+        <span @click="goDoc">文档链接</span>
       </div>
     </div>
     <!-- 团队邀请 -->
