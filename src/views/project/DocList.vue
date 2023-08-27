@@ -181,7 +181,7 @@ export default {
       // VERY IMPORTANT 当前正在操作的文档
       curOperationDoc: {
         id: 1,
-        document_name: "1-标题",
+        doc_name: "1-标题",
         text: "<p>dashodhaso</p><p></p><p>asfasddassdda</p><p>da</p><p></p><p>dsadasada</p><p></p><p></p><p></p><p>dasdasds</p><p>dasdas</p><p>dsa</p>",
       },
       // 当前项目下已经创建的文件列表
@@ -227,18 +227,17 @@ export default {
       let formData = new FormData();
       let project_id = this.$route.params.project_id;
       let document_title = this.newDocumentTitle;
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("project_id", project_id);
-      formData.append("document_title", document_title);
+      formData.append("doc_name", document_title);
+      formData.append("text", "");
       this.axios({
         method: "POST",
-        url: "https://summer.super2021.com/api/document/create_token",
+        url: `/project/${project_id}/document`,
         data: formData,
       })
         .then((res) => {
-          let document_id = res.data.document_id;
+          let document_id = res.data.id;
           this.$router.push({
-            path: "/project/doc",
+            path: `/project/${project_id}/doc`,
             query: {
               document_id: document_id,
             },
@@ -250,21 +249,20 @@ export default {
     },
     async getOldDocumentToken(documentID) {
       let document_id = documentID;
+      let project_id = this.$route.params.project_id;
       this.$router.push({
-        path: "/project/doc",
+        path: `/project/${project_id}/doc`,
         query: {
           document_id: document_id,
         },
       });
     },
     async removeSingleDocument(documentID) {
-      let formData = new FormData();
-      formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
-      formData.append("document_id", documentID);
+      let document_id = documentID;
+      let project_id = this.$route.params.project_id;
       this.axios({
         method: "POST",
-        url: "https://summer.super2021.com/api/document/delete_document",
-        data: formData,
+        url: `/project/${project_id}/document/${document_id}`,
       })
         .then((res) => {
           this.$message.success("文档删除成功！");
@@ -275,11 +273,6 @@ export default {
         });
     },
 
-    /**
-     * 重命名某个文档
-     * @param {string} documentID 需要重命名的文档id
-     * @param {string} newTitle 重新命名的新文档名字
-     */
     async renameDocument(documentID, newTitle) {
       console.log(
         `想要重命名的文件id是 :${documentID}, 新的名字是 :${newTitle}`
@@ -318,17 +311,11 @@ export default {
       this.ifShowTheRenameDocWindow = false;
       this.changeToRenameInput = false;
     },
-    /**
-     * VERY IMPORTANT NOTE
-     * 这里在打开重命名文件窗口时，需要传入这个文件对象
-     * 这里是因为打开重命名窗口和发送重命名请求是两端，
-     *    打开重命名窗口不代表一定会重命名
-     * @param {document} item
-     */
+
     openRenameDocWindow(item) {
       this.curOperationDoc = item;
       this.changeToRenameInput = false;
-      this.renameDocumentTitle = item.document_title;
+      this.renameDocumentTitle = item.doc_name;
       this.ifShowTheRenameDocWindow = true;
     },
     jumpTo() {

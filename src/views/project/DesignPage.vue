@@ -68,6 +68,7 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     next();
+    /*
     let formData = new FormData();
     formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
     formData.append("page_id", to.query.page_id);
@@ -88,10 +89,11 @@ export default {
         this.$message.error("跳转失败");
         console.log(err);
         next(from.fullPath);
-      });
+      });*/
   },
   beforeRouteLeave(to, from, next) {
     next();
+    /*
     let formData = new FormData();
     formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
     formData.append("page_id", this.$route.query.page_id);
@@ -110,7 +112,7 @@ export default {
       .catch((err) => {
         this.$message.error("退出编辑失败");
         console.log(err);
-      });
+      });*/
   },
   data() {
     return {
@@ -132,6 +134,7 @@ export default {
   },
   methods: {
     restore() {
+      /*
       let formData = new FormData();
       formData.append("JWT", JSON.parse(localStorage.getItem("loginInfo")).JWT);
       formData.append("page_id", this.$route.query.page_id);
@@ -151,6 +154,7 @@ export default {
           console.log(err);
           this.$router.back();
         });
+        */
     },
 
     handleDrop(e) {

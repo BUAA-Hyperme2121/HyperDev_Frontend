@@ -21,7 +21,7 @@ const data = {
     ...layer.state,
     ...snapshot.state,
     ...lock.state,
-
+    userInfo: {},
     editMode: "edit", // 编辑器模式 edit preview
     canvasStyleData: {
       // 页面全局数据
@@ -127,15 +127,4 @@ const data = {
   },
 };
 
-const userInfo = {
-  state: {},
-  mutations: {},
-  actions: {},
-};
-
-export default new Vuex.Store({
-  modules: {
-    data,
-    userInfo,
-  },
-});
+export default new Vuex.Store(data);
