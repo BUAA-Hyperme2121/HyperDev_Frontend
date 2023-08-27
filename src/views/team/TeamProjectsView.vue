@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import ProjectItem from "@/components/project/ProjectItem.vue";
+import ProjectItem from "@/components/Project/ProjectItem.vue";
 import qs from "qs";
 export default {
   components: {

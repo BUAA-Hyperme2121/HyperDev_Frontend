@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import DelProjectItem from "@/components/project/DelProjectItem.vue";
+import DelProjectItem from "@/components/Project/DelProjectItem.vue";
 export default {
   components: {
     DelProjectItem,
