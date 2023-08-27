@@ -5,9 +5,11 @@
       <!-- 顶部操作栏 -->
       <div class="msg-tool">
         <!-- 一键已读 -->
-        <el-button> 一键已读 </el-button>
+        <el-button @click.native="setAllRead"> 一键已读 </el-button>
         <!-- 一键删除已读消息 -->
-        <el-button type="danger"> 删除已读消息 </el-button>
+        <el-button type="danger" @click.native="delReadMsg">
+          删除已读消息
+        </el-button>
       </div>
       <!-- 消息列表 -->
       <MsgItem
@@ -25,50 +27,113 @@
 </template>
 
 <script>
+import qs from "qs";
 import MsgItem from "@/components/message/MsgItem.vue";
-import { log } from "mathjs";
 export default {
   components: {
     MsgItem,
   },
   data() {
     return {
-      msgList: [
-        {
-          id: 1,
-          avatar: "https://avatars.githubusercontent.com/u/43968297?v=4",
-          name: "用户1",
-          title: "在文档中@了你",
-          unread: true,
-        },
-        {
-          id: 2,
-          avatar: "https://avatars.githubusercontent.com/u/43968297?v=4",
-          name: "用户2",
-          title: "在群聊中@了你",
-          unread: false,
-        },
-        {
-          id: 3,
-          avatar: "https://avatars.githubusercontent.com/u/43968297?v=4",
-          name: "用户3",
-          title: "邀请你加入团队",
-          unread: false,
-        },
-      ],
+      msgList: [],
     };
   },
   methods: {
+    // 查看消息详情
     getDetail(id) {
       // console.log(id);
-      console.log("bbb");
+      // console.log("bbb");
       this.$router.push({
         path: "/home/message/detail",
         query: {
           message_id: id,
         },
       });
+
+      // 设为已读
+      this.axios({
+        method: "patch",
+        url: `/message/${id}`,
+        data: qs.stringify({
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        }),
+      })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
+
+    // 获取消息列表
+    getMsgList() {
+      this.axios({
+        method: "get",
+        url: "/message",
+        params: {
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        },
+      })
+        .then((res) => {
+          this.msgList = res.data.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    // 一键已读
+    setAllRead() {
+      // 遍历消息列表，全部设为已读
+      for (let i = 0; i < this.msgList.length; i++) {
+        this.axios({
+          method: "patch",
+          url: `/message/${this.msgList[i].id}`,
+          data: qs.stringify({
+            jwt: JSON.parse(localStorage.getItem("jwt")),
+          }),
+        })
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+
+      // 重新获取消息列表
+      this.getMsgList();
+    },
+
+    // 删除已读消息
+    delReadMsg() {
+      // 遍历消息列表，删除已读消息
+      for (let i = 0; i < this.msgList.length; i++) {
+        if (this.msgList[i].is_read == true) {
+          this.axios({
+            method: "delete",
+            url: `/message/${this.msgList[i].id}`,
+            data: qs.stringify({
+              jwt: JSON.parse(localStorage.getItem("jwt")),
+            }),
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }
+      this.getMsgList();
+    },
+  },
+  mounted() {
+    this.getMsgList();
   },
 };
 </script>

@@ -69,7 +69,7 @@
       </div>
       <!-- 分割线   -->
       <el-divider style="margin: 8px"></el-divider>
-      <router-view />
+      <router-view :key="$route.fullPath" />
     </div>
 
     <!-- 创建团队对话框 -->
@@ -79,7 +79,11 @@
       width="30%"
       center
     >
-      <el-input placeholder="团队名称" v-model="newTeamName" @keyup.enter.native="createTeam"></el-input>
+      <el-input
+        placeholder="团队名称"
+        v-model="newTeamName"
+        @keyup.enter.native="createTeam"
+      ></el-input>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="createTeamDialogVisible = false">取消</el-button>
@@ -124,7 +128,6 @@ export default {
         path: "/home/team",
         query: {
           team_id: team.team.id,
-          role: team.role,
         },
       });
     },
@@ -191,7 +194,6 @@ export default {
           //保存团队列表
           this.teamList = res.data.data;
           // console.log(this.teamList);
-
         })
         .catch((err) => {
           //提示获取失败
@@ -207,11 +209,14 @@ export default {
     // console.log(666);
     //获取团队列表
     this.getTeamList();
+
+    // 获取个人信息
+    this.$store.state.userInfo = JSON.parse(localStorage.getItem("userInfo"));
   },
 };
 </script>
 
-<style>
+<style scoped>
 .home {
   display: flex;
   height: 100%;

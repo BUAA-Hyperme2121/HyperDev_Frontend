@@ -5,24 +5,30 @@
       <el-avatar
         shape="square"
         fit="fill"
-        :src="item.avatar"
+        :src="avatar"
         style="height: 45px; width: 45px; margin-right: 8px"
       ></el-avatar>
     </div>
     <!-- 名称（昵称/真实姓名)和标题 -->
     <div class="chat-name">
-      <span style="margin-right: 8px">{{ item.name }}</span>
+      <span style="margin-right: 8px">{{ item.from_user.username }}</span>
       <span>{{ item.title }}</span>
     </div>
     <!-- 未读/已读 -->
     <div class="unread">
-      <el-badge v-if="item.unread" value="new" />
+      <el-badge v-if="! item.is_read" value="new" />
     </div>
   </div>
 </template>
 
 <script>
+import qs from "qs";
 export default {
+  data() {
+    return {
+      avatar: "https://picsum.photos/200/200",
+    };
+  },
   // 接收传来的props
   props: ["item"],
 };

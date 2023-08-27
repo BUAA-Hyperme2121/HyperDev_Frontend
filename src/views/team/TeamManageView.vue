@@ -1,20 +1,22 @@
 <template>
   <div class="manage-box">
     <el-table :data="memberList" height="250" style="width: 60%">
-      <el-table-column prop="username" label="昵称" width="180" />
-      <el-table-column prop="real_name" label="姓名" width="180" />
-      <el-table-column prop="email" label="邮箱" />
-      <el-table-column prop="status" label="身份" />
+      <el-table-column prop="user.username" label="昵称" width="180" />
+      <el-table-column prop="user.real_name" label="姓名" width="180" />
+      <el-table-column prop="user.email" label="邮箱" />
+      <el-table-column prop="role" label="身份" />
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
-          <el-button size="small" @click="centerDialogVisible = true"
+          <el-button
+            size="small"
+            @click="setMemberToBeChange(scope.row.user.id)"
             >修改身份</el-button
           >
 
           <el-button
             size="small"
             type="danger"
-            @click.native="handleDelete(scope.$index, scope.row)"
+            @click.native="handleDelete(scope.row.user.id)"
             >移出团队</el-button
           >
         </template>
@@ -39,20 +41,18 @@
       width="30%"
     >
       <el-select
-        v-model="value"
+        v-model="newRole"
         class="m-2"
         placeholder="选择新的身份"
         size="large"
       >
-        <el-option :key="1" label="管理员" :value="1" />
-        <el-option :key="2" label="普通成员" :value="2" />
+        <el-option :key="1" label="管理员" value="Admin" />
+        <el-option :key="2" label="普通成员" value="Member" />
       </el-select>
 
       <span class="dialog-footer" slot="footer">
         <el-button @click="centerDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="centerDialogVisible = false">
-          确认
-        </el-button>
+        <el-button type="primary" @click="changeRole"> 确认 </el-button>
       </span>
     </el-dialog>
   </div>
@@ -64,16 +64,21 @@ export default {
   data() {
     return {
       newMemberEmail: "",
-      value: "",
+
       centerDialogVisible: false,
       memberList: [],
+
+      // 修改后的身份
+      newRole: "",
+      // 修改的成员id
+      memberToBeChange: "",
     };
   },
-  methods: {
-    handleDelete(index, row) {
-      console.log(index, row);
-    },
+  mounted() {
+    this.getMemberList();
+  },
 
+  methods: {
     // 邀请成员
     invite() {
       this.axios({
@@ -90,6 +95,7 @@ export default {
               message: res.data.msg,
               type: "success",
             });
+            this.getMemberList();
           } else {
             this.$message({
               message: res.data.msg,
@@ -113,7 +119,7 @@ export default {
     getMemberList() {
       this.axios({
         method: "get",
-        url: `/team/${this.$route.query.team_id}`,
+        url: `/team/${this.$route.query.team_id}/user`,
         params: {
           jwt: JSON.parse(localStorage.getItem("jwt")),
         },
@@ -136,8 +142,81 @@ export default {
           });
         });
     },
-  },
 
+    setMemberToBeChange(id) {
+      this.memberToBeChange = id;
+      this.centerDialogVisible = true;
+    },
+
+    // 修改成员身份
+    changeRole() {
+      this.axios({
+        method: "put",
+        url: `/team/${this.$route.query.team_id}/user/${this.memberToBeChange}`,
+        data: qs.stringify({
+          team_role: this.newRole,
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        }),
+      })
+        .then((res) => {
+          if (res.data.result == 0) {
+            this.$message({
+              message: res.data.msg,
+              type: "success",
+            });
+            this.centerDialogVisible = false;
+            this.getMemberList();
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: "error",
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message({
+            message: "修改成员身份失败",
+            type: "error",
+          });
+        });
+    },
+    // 移出团队
+    handleDelete(id) {
+      // console.log(id);
+      this.axios({
+        method: "delete",
+        url: `/team/${this.$route.query.team_id}/user/${id}`,
+        data: qs.stringify({
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        }),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+        .then((res) => {
+          if (res.data.result == 0) {
+            this.$message({
+              message: res.data.msg,
+              type: "success",
+            });
+            this.getMemberList();
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: "error",
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$message({
+            message: "移出团队失败",
+            type: "error",
+          });
+        });
+    },
+  },
 };
 </script>
 

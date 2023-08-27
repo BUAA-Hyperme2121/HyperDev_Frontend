@@ -3,8 +3,8 @@
   <div class="team">
     <!-- 团队名称和所任职位 -->
     <div class="team-top">
-      <span class="team-name">{{ teamInfo.team_name }}</span>
-      <span class="team-pos">{{ role }}</span>
+      <span class="team-name">{{ teamInfo.team.team_name }}</span>
+      <span class="team-pos">{{ teamInfo.role }}</span>
     </div>
     <!-- 水平导航 -->
     <el-menu mode="horizontal" @select="handleSelect">
@@ -24,7 +24,7 @@ export default {
       // 团队id
       teamId: this.$route.query.team_id,
       //当前用户担任的角色
-      role: this.$route.query.role,
+      // role: this.$route.query.role,
 
       teamInfo: {},
     };
