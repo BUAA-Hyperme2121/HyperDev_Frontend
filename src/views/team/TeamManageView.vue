@@ -1,10 +1,10 @@
 <template>
   <div class="manage-box">
-    <el-table :data="memberList" height="250" style="width: 60%">
-      <el-table-column prop="user.username" label="昵称" width="180" />
-      <el-table-column prop="user.real_name" label="姓名" width="180" />
-      <el-table-column prop="user.email" label="邮箱" />
-      <el-table-column prop="role" label="身份" />
+    <el-table :data="memberList" height="400" style="width: 60%">
+      <el-table-column prop="user.username" label="昵称" width="80" />
+      <el-table-column prop="user.real_name" label="姓名" width="80" />
+      <el-table-column prop="user.email" label="邮箱" width="180" />
+      <el-table-column prop="role" label="身份" width="140" />
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button
@@ -92,13 +92,13 @@ export default {
   },
   async mounted() {
     let res = await this.axios({
-        method: "get",
-        url: `/team/${this.$route.query.team_id}/user`,
-        params: {
-          jwt: JSON.parse(localStorage.getItem("jwt")),
-        },
-      })
-    
+      method: "get",
+      url: `/team/${this.$route.query.team_id}/user`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+      },
+    });
+
     if (res.data.result == 0) {
       this.memberList = res.data.data;
     } else {
@@ -258,7 +258,22 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+::v-deep .el-table,
+::v-deep .el-table__expanded-cell {
+  background-color: transparent !important;
+}
+/* 表格内背景颜色 */
+::v-deep .el-table th,
+::v-deep .el-table tr {
+  background-color: transparent !important;
+  border: 0;
+}
+
+/*去除底部灰条.el-table::before*/
+::v-deep .el-table::before {
+  display: none;
+}
 .manage-box {
   display: flex;
 }

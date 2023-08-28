@@ -1,5 +1,5 @@
 <template>
-  <div class="list-item">
+  <div class="list-item" style="background-color: transparent">
     <!-- 用户或者群聊头像 -->
     <div class="chat-avatar">
       <el-avatar
@@ -16,7 +16,7 @@
     </div>
     <!-- 未读/已读 -->
     <div class="unread">
-      <el-badge v-if="! item.is_read" value="new" />
+      <el-badge v-if="!item.is_read" value="new" />
     </div>
   </div>
 </template>

@@ -25,7 +25,7 @@
 
     <div class="home-left">
       <!-- logo -->
-      <div class="logo" @click="goIndex">HyperDev</div>
+      <div class="logo" @click="goIndex" style="font-weight: 700">HyperDev</div>
       <!-- 侧边栏 -->
       <div>
         <el-menu @select="handleSelect">

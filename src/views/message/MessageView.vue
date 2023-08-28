@@ -154,7 +154,7 @@ export default {
     handlePolling() {
       this.timer = setInterval(() => {
         this.getMsgList();
-      }, 1000);
+      }, 500);
     },
   },
 
