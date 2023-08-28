@@ -1,6 +1,6 @@
 <!-- eslint-disable no-unused-vars -->
 <template>
-  <div class="home">
+  <div class="home" v-if="shouldRenderComponent">
     <Toolbar />
 
     <main>
@@ -97,12 +97,24 @@ export default {
       jwt: JSON.parse(localStorage.getItem("jwt")),
       try_modify: false,
     });
+    this.$store.commit("setComponentData", []);
+    this.$store.commit("setCanvasStyle", {
+      // 页面全局数据
+      width: 1240,
+      height: 760,
+      scale: 100,
+      color: "#000",
+      opacity: 1,
+      background: "#fff",
+      fontSize: 14,
+    });
     next();
   },
   data() {
     return {
       activeName: "attr",
       reSelectAnimateIndex: undefined,
+      shouldRenderComponent: true,
     };
   },
   computed: mapState([
@@ -113,6 +125,18 @@ export default {
     "editor",
   ]),
   created() {
+    this.$showLoading.show();
+    this.$store.commit("setComponentData", []);
+    this.$store.commit("setCanvasStyle", {
+      // 页面全局数据
+      width: 1240,
+      height: 760,
+      scale: 100,
+      color: "#000",
+      opacity: 1,
+      background: "#fff",
+      fontSize: 14,
+    });
     let project_id = this.$route.params.project_id;
     let prototype_id = this.$route.query.page_id;
     this.axios({
@@ -125,21 +149,21 @@ export default {
       .then((res) => {
         let pageData = res.data.data.page_data;
         let pageStyle = res.data.data.page_style;
-        console.log(pageData);
-        console.log(pageStyle);
-        setDefaultcomponentData(JSON.parse(pageData));
         this.$store.commit("setComponentData", JSON.parse(pageData));
         this.$store.commit("setCanvasStyle", JSON.parse(pageStyle));
+        setDefaultcomponentData(JSON.parse(pageData));
+        this.$showLoading.hide();
+        console.log(pageData);
+        console.log(pageStyle);
       })
       .catch((err) => {
         console.log(err);
+        this.$showLoading.hide();
       });
     // 全局监听按键事件
     listenGlobalKeyDown();
   },
   methods: {
-    restore() {},
-
     handleDrop(e) {
       e.preventDefault();
       e.stopPropagation();

@@ -2,27 +2,33 @@
   <div class="collaborative-manage-page-container">
     <div class="manage-page-container">
       <div class="operation-container">
-        <div class="operation-title" @click="jumpTo">操作列表</div>
-        <div class="operation-notice">新建共享文档</div>
+        <div class="operation-title" @click="jumpTo">工作台</div>
+        <div class="operation-notice">新建项目文档</div>
         <div
           class="create-new-doc-area"
           @click="ifShowTheCreateNewDocWindow = true"
         ></div>
       </div>
       <div class="table-container">
-        <el-table :data="document_list" style="width: 100%" border height="550">
-          <!-- <el-table-column
-            prop="document_id"
-            label="文档id"
-            width="80"
+        <div class="operation-title">项目文档列表</div>
+        <el-table
+          :data="document_list"
+          style="width: 100%; background-color: rgba(219, 219, 219, 0.373)"
+          border
+          height="500"
+          show-header="false"
+        >
+          <el-table-column
+            style="background-color: rgba(219, 219, 219, 0.373)"
+            prop="doc_name"
+            label="文档标题"
+            width="250"
           >
-          </el-table-column> -->
-
-          <el-table-column prop="doc_name" label="文档标题" width="250">
           </el-table-column>
           <el-table-column
             label="操作"
             style="
+              background-color: rgba(219, 219, 219, 0.373);
               display: flex;
               flex-direction: column;
               align-items: stretch;
@@ -58,7 +64,7 @@
       <div class="dialog-bomb">
         <div class="create-doc-wrap">
           <div class="title">
-            新建即时协作文档
+            新建项目文档
             <!-- 关闭悬浮窗口 -->
             <i class="close" @click="closeCreateNewDocWindow"></i>
           </div>
@@ -198,6 +204,7 @@ export default {
   },
   methods: {
     async getCurrentDocumentList() {
+      this.$showLoading.show();
       let project_id = this.$route.params.project_id;
       this.axios({
         method: "GET",
@@ -209,6 +216,7 @@ export default {
         .then((res) => {
           console.log(res);
           this.document_list = res.data.data;
+          this.$showLoading.hide();
         })
         .catch((err) => {
           console.log(err);
@@ -320,18 +328,21 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .operation-container {
+  text-align: center;
   float: left;
   margin-top: 40px;
-  text-align: center;
-  width: 20%;
-  height: 550px;
+  margin-left: 5%;
+  width: 28%;
+  height: 562px;
   border: 2px solid #808080;
   border-radius: 0.75rem;
   overflow: hidden;
+  background-color: rgba(219, 219, 219, 0.373);
 }
-.operation-container .operation-title {
+.operation-title {
+  text-align: center;
   margin-top: 10px;
   margin-bottom: 10px;
   padding-bottom: 10px;
@@ -342,11 +353,26 @@ export default {
   /* border-bottom: 2px solid #e5e9ef; */
   border-bottom: 2px solid #808080;
 }
-.operation-container .operation-notice {
+.operation-notice {
   margin-top: 10px;
   /* font-family: 'Courier New', Courier, monospace; */
   font-family: "PingFang SC";
   font-size: 18px;
+}
+::v-deep .el-table,
+::v-deep .el-table__expanded-cell {
+  background-color: transparent !important;
+}
+/* 表格内背景颜色 */
+::v-deep .el-table th,
+::v-deep .el-table tr {
+  background-color: transparent !important;
+  border: 0;
+}
+
+/*去除底部灰条.el-table::before*/
+::v-deep .el-table::before {
+  display: none;
 }
 
 .operation-container .create-new-doc-area:hover {
@@ -374,7 +400,7 @@ export default {
   float: right;
   margin-top: 40px;
   margin-right: 5%;
-  width: 70%;
+  width: 60%;
   border: 2px solid #808080;
   border-radius: 0.75rem;
   overflow: hidden;

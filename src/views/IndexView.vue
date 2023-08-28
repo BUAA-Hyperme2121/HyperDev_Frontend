@@ -1,5 +1,26 @@
 <template>
   <div class="main-box">
+    <div class="background">
+      <vue-particles
+        color="#8a8591"
+        :particleOpacity="0.7"
+        :particlesNumber="80"
+        shapeType="circle"
+        :particleSize="4"
+        linesColor="#8a8591"
+        :linesWidth="1"
+        :lineLinked="true"
+        :lineOpacity="0.4"
+        :linesDistance="150"
+        :moveSpeed="1"
+        :hoverEffect="true"
+        hoverMode="grab"
+        :clickEffect="true"
+        clickMode="push"
+      >
+      </vue-particles>
+    </div>
+
     <div class="intro">
       <div class="big-title">HyperDev</div>
       <div class="small-title">软工团队协作与管理平台</div>
@@ -41,8 +62,18 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
   height: 100%;
-  margin-top: 10%;
+  margin-top: 15%;
+}
+.background {
+  background-color: #faf7ff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 .big-title {
   font-size: 80px;

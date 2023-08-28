@@ -65,6 +65,7 @@ export default {
         { name: "Roxie 4", id: 4 },
       ],
       contentEditor: "",
+      text: "",
       document_title: "测试文档",
       shareDialogVisible: false,
       link1: "",
@@ -72,6 +73,56 @@ export default {
       share_code_y: "",
       share_code_n: "",
     };
+  },
+  created() {
+    this.$showLoading.show();
+    let project_id = this.$route.params.project_id;
+    let document_id = this.$route.query.document_id;
+    this.axios({
+      method: "GET",
+      url: `/project/${project_id}/document/${document_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+      },
+    })
+      .then((res) => {
+        this.text = res.data.data.text;
+        this.document_title = res.data.data.doc_name;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    this.axios({
+      method: "GET",
+      url: `/project/${project_id}/document/${document_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        need_share: true,
+        can_modify: true,
+      },
+    })
+      .then((res) => {
+        this.share_code_y = res.data.data.share_code;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    this.axios({
+      method: "GET",
+      url: `/project/${project_id}/document/${document_id}`,
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        need_share: true,
+        can_modify: false,
+      },
+    })
+      .then((res) => {
+        this.share_code_n = res.data.data.share_code;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    this.$showLoading.hide();
   },
   mounted() {
     let that = this;
@@ -99,7 +150,7 @@ export default {
             that.atOthers();
           },
         }, */
-        /* {
+        {
           hotkey: "",
           name: "share",
           tipPosition: "s",
@@ -109,7 +160,7 @@ export default {
           click() {
             that.showShareDialog();
           },
-        }, */
+        },
         {
           hotkey: "",
           name: "save",
@@ -146,6 +197,9 @@ export default {
       cache: {
         enable: false,
       },
+      after: () => {
+        this.contentEditor.setValue(this.text);
+      },
     });
 
     //获取members
@@ -164,52 +218,6 @@ export default {
         this.$message.error("跳转失败");
         console.log(err);
       }); */
-    let project_id = this.$route.params.project_id;
-    let document_id = this.$route.query.document_id;
-    this.axios({
-      method: "GET",
-      url: `/project/${project_id}/document/${document_id}`,
-      params: {
-        jwt: JSON.parse(localStorage.getItem("jwt")),
-      },
-    })
-      .then((res) => {
-        this.contentEditor.setValue(res.data.data.text);
-        this.document_title = res.data.data.doc_name;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    this.axios({
-      method: "GET",
-      url: `/project/${project_id}/document/${document_id}`,
-      params: {
-        jwt: JSON.parse(localStorage.getItem("jwt")),
-        need_share: true,
-        can_modify: true,
-      },
-    })
-      .then((res) => {
-        this.share_code_y = res.data.data.share_code;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    this.axios({
-      method: "GET",
-      url: `/project/${project_id}/document/${document_id}`,
-      params: {
-        jwt: JSON.parse(localStorage.getItem("jwt")),
-        need_share: true,
-        can_modify: false,
-      },
-    })
-      .then((res) => {
-        this.share_code_n = res.data.data.share_code;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   },
   methods: {
     handleKeyPress(event) {
@@ -251,8 +259,8 @@ export default {
     showShareDialog() {
       // 根据您的项目和文档ID生成链接
       const project_id = this.$route.params.project_id; // 替换为实际的项目ID
-      this.link1 = `http://8.130.12.73/api/docread?project_id=${project_id}&share_code=${this.share_code_y}`;
-      this.link2 = `http://8.130.12.73/api/docread?project_id=${project_id}&share_code=${this.share_code_n}`;
+      this.link1 = `http://8.130.12.73/docread?project_id=${project_id}&share_code=${this.share_code_y}`;
+      this.link2 = `http://8.130.12.73/docread?project_id=${project_id}&share_code=${this.share_code_n}`;
       this.shareDialogVisible = true;
     },
     closeShareDialog() {

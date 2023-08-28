@@ -166,7 +166,7 @@ JSON.parse(localStorage.getItem('team')).team_id
 JSON.parse(localStorage.getItem('project')).project_id
  */
 
-const DEFAULT_DOC_NAME = "不知道叫什么的页面";
+const DEFAULT_DOC_NAME = "未命名页面";
 const DEFAULT_RENAME = "";
 import qs from "qs";
 export default {
@@ -210,6 +210,7 @@ export default {
   },
   methods: {
     async getCurrentDocumentList() {
+      this.$showLoading.show();
       let project_id = this.$route.params.project_id;
       this.axios({
         method: "GET",
@@ -221,9 +222,11 @@ export default {
         .then((res) => {
           this.page_list = res.data.data;
           console.log(this.page_list);
+          this.$showLoading.hide();
         })
         .catch((err) => {
           console.log(err);
+          this.$showLoading.hide();
         });
     },
     closeCreateNewDocWindow() {
@@ -481,6 +484,7 @@ export default {
   border: 2px solid #808080;
   border-radius: 0.75rem;
   overflow: hidden;
+  background-color: rgba(219, 219, 219, 0.373);
 }
 .operation-title {
   margin-top: 10px;
@@ -533,6 +537,7 @@ export default {
   overflow: hidden;
   /* overflow-y: hidden; */
   /* overflow-x: scroll; */
+  background-color: rgba(219, 219, 219, 0.373);
 }
 
 /* .editor-page-container{ */

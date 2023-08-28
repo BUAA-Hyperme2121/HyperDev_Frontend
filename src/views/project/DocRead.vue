@@ -26,7 +26,28 @@ export default {
     return {
       contentEditor: "",
       document_title: "测试文档",
+      text: "",
     };
+  },
+  created() {
+    this.$showLoading.show();
+    let project_id = this.$route.query.project_id;
+    let share_code = this.$route.query.share_code;
+    this.axios({
+      method: "GET",
+      url: `/project/${project_id}/document/share`,
+      params: {
+        share_code: share_code,
+      },
+    })
+      .then((res) => {
+        this.text = res.data.data.text;
+        this.document_title = res.data.data.doc_name;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    this.$showLoading.hide();
   },
   mounted() {
     let that = this;
@@ -75,24 +96,10 @@ export default {
       cache: {
         enable: false,
       },
-    });
-    let project_id = this.$route.query.project_id;
-    let share_code = this.$route.query.share_code;
-    this.axios({
-      method: "GET",
-      url: `/project/${project_id}/document/share`,
-      params: {
-        share_code: share_code,
+      after: () => {
+        this.contentEditor.setValue(this.text);
       },
-    })
-      .then((res) => {
-        console.log(res.data.data.text);
-        this.contentEditor.setValue(res.data.data.text);
-        this.document_title = res.data.data.doc_name;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    });
   },
   methods: {
     saveDoc() {

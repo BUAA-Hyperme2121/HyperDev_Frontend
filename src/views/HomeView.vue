@@ -1,6 +1,28 @@
 <template>
   <div class="home">
+    <div class="background">
+      <vue-particles
+        style="height: 100%"
+        color="#8a8591"
+        :particleOpacity="0.7"
+        :particlesNumber="80"
+        shapeType="circle"
+        :particleSize="4"
+        linesColor="#8a8591"
+        :linesWidth="1"
+        :lineLinked="true"
+        :lineOpacity="0.4"
+        :linesDistance="150"
+        :moveSpeed="1"
+        :hoverEffect="true"
+        hoverMode="grab"
+        :clickEffect="true"
+        clickMode="push"
+      >
+      </vue-particles>
+    </div>
     <!-- 左边导航区 -->
+
     <div class="home-left">
       <!-- logo -->
       <div class="logo" @click="goIndex">HyperDev</div>
@@ -215,6 +237,15 @@ export default {
 </script>
 
 <style scoped>
+.background {
+  background-color: #f2f6ff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
 .home {
   display: flex;
   height: 100%;
