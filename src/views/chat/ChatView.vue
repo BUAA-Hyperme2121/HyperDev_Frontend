@@ -28,16 +28,16 @@
         <span>{{ chattingObj.team.team_name }}</span>
       </div>
       <!-- 聊天内容 -->
-      <div class="chat-content">
-        <div style="height: 330px; overflow-y: auto" ref="scrollbarRef">
-          <!-- 遍历聊天内容数组，生成聊天列表 -->
-          <ChatContentItem
-            v-for="item in chattingContentList"
-            :key="item.datetime"
-            :item="item"
-          />
-        </div>
+
+      <div style="height: 330px; overflow-y: auto" ref="scrollbarRef">
+        <!-- 遍历聊天内容数组，生成聊天列表 -->
+        <ChatContentItem
+          v-for="item in chattingContentList"
+          :key="item.datetime"
+          :item="item"
+        />
       </div>
+
       <!-- 发送消息区 -->
       <div class="chat-input">
         <!-- 工具栏 -->
@@ -119,6 +119,9 @@ export default {
 
       dialogVisible: false,
 
+      // 当前聊天对象下的身份
+      userRole: "",
+
       // @的对象的id
       atTo: "",
       // 带有@的聊天记录id
@@ -136,7 +139,7 @@ export default {
       }
       // 所有人
       else {
-        // 遍历人员数组，获取所有人的id
+        // 遍历人员数组，获取除自己以外所有人的id
         this.atTo = [];
         // 从第二个开始
         for (let i = 1; i < this.memberList.length; i++) {
@@ -241,7 +244,7 @@ export default {
     },
 
     // 切换聊天对象
-    changeChattingObj(item) {
+    async changeChattingObj(item) {
       // console.log(this.chattingObj);
       // console.log(item);
 
@@ -253,39 +256,51 @@ export default {
 
       console.log(item.team.id);
       // 获取新的团队成员列表
-      this.axios({
+      let res = await this.axios({
         method: "get",
         url: `/team/${item.team.id}/user`,
         params: {
           jwt: JSON.parse(localStorage.getItem("jwt")),
         },
-      })
-        .then((res) => {
-          if (res.data.result == 0) {
-            this.memberList = res.data.data;
-            // 插入所有人
-            this.memberList.unshift({
-              user: {
-                username: "所有人",
-              },
-            });
-          } else {
-            this.$message({
-              message: res.data.msg,
-              type: "error",
-            });
+      });
+
+      if (res.data.result == 0) {
+        this.memberList = res.data.data;
+
+        // 遍历修改当前用户身份
+        this.memberList.forEach((item) => {
+          if (item.user.id == this.$store.state.userInfo.id) {
+            this.userRole = item.role;
           }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$message({
-            message: "获取成员列表失败",
-            type: "error",
-          });
         });
+
+        // 将自己的信息移除
+        this.memberList.forEach((item, index) => {
+          if (item.user.id == this.$store.state.userInfo.id) {
+            this.memberList.splice(index, 1);
+          }
+        });
+
+        // 如果不是普通成员则插入所有人
+        if (this.userRole != "Common Member") {
+          this.memberList.unshift({
+            user: {
+              username: "所有人",
+            },
+          });
+        }
+      } else {
+        this.$message({
+          message: res.data.msg,
+          type: "error",
+        });
+      }
 
       // 清空输入框
       this.content = "";
+
+      // 滚动到底部
+      this.$refs.scrollbarRef.scrollTop = this.$refs.scrollbarRef.scrollHeight;
     },
 
     // 获取指定聊天对象的聊天内容
@@ -336,11 +351,21 @@ export default {
 
     // console.log(this.chattingObj);
 
-    this.getChatContentList(this.chatObjList[0]);
+    res = await this.axios({
+      method: "get",
+      url: "/chat/chatrecord",
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        team_id: this.chatObjList[0].team.id,
+      },
+    });
 
-    console.log(this.chattingObj);
+    this.chatObjList[0].chatContentList = res.data.data;
 
-    // 可能会比上一句先执行
+    // this.getChatContentList(this.chatObjList[0]);
+
+    // console.log(this.chattingObj);
+
     this.chattingContentList = this.chatObjList[0].chatContentList;
 
     // 遍历聊天对象列表，获取历史记录并为每个对象创建一个 WebSocket 连接
@@ -374,8 +399,6 @@ export default {
       }
     };
   },
-
-  mounted() {},
 };
 </script>
 

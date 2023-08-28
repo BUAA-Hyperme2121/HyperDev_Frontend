@@ -23,11 +23,11 @@
           </span>
         </div>
         <!-- 发起时间 -->
-        <!-- <div>
+        <div>
           <span>
-            {{ msgDetail.mention_chat.chat_datetime }}
+            {{ msgDetail.datetime }}
           </span>
-        </div> -->
+        </div>
       </div>
     </div>
     <!-- 消息的具体内容 -->
@@ -58,14 +58,33 @@
       </div>
     </div>
     <!-- 团队邀请 -->
-    <div class="invite-content">
+    <div class="invite-content" v-if="msgDetail.invite_team != null">
       <!-- 团队信息 -->
+      <div class="team-info">
+        <span>{{ msgDetail.invite_team.team_name }}</span>
+      </div>
       <!-- 加入或拒绝按钮 -->
+      <div class="team-btn" v-if="msgDetail.invite_state == 0">
+        <el-button type="primary" size="small" @click="enterTeam"
+          >加入</el-button
+        >
+        <el-button type="danger" size="small" @click="rejectTeam"
+          >拒绝</el-button
+        >
+      </div>
+      <!-- 已加入或已拒绝 -->
+      <div class="team-status" v-if="msgDetail.invite_state == 1">
+        <span>已加入该团队</span>
+      </div>
+      <div class="team-status" v-if="msgDetail.invite_state == 2">
+        <span>已拒绝该邀请</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import qs from "qs";
 export default {
   data() {
     return {
@@ -83,6 +102,49 @@ export default {
           document_id: this.msgDetail.mention_doc.id,
         },
       });
+    },
+
+    // 发送请求，加入团队
+    enterTeam() {
+      console.log(this.msgDetail);
+      this.axios({
+        url: `/team/${this.msgDetail.invite_team.id}/user/${this.$store.state.userInfo.id}`,
+        method: "post",
+        data: qs.stringify({
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+          message_id: this.message_id,
+          invite_state: 1,
+        }),
+      }).then((res) => {
+        this.$message({
+          message: "加入成功",
+          type: "success",
+        });
+      });
+
+      // 修改消息状态
+      this.msgDetail.invite_state = 1;
+    },
+
+    // 发送请求，拒绝团队邀请
+    rejectTeam() {
+      this.axios({
+        url: `/team/${this.msgDetail.invite_team.id}/user/${this.$store.state.userInfo.id}`,
+        method: "post",
+        data: qs.stringify({
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+          message_id: this.message_id,
+          invite_state: 2,
+        }),
+      }).then((res) => {
+        this.$message({
+          message: "已拒绝",
+          type: "success",
+        });
+      });
+
+      // 修改消息状态
+      this.msgDetail.invite_state = 2;
     },
   },
 

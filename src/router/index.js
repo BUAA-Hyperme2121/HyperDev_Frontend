@@ -111,6 +111,13 @@ const routes = [
   },
 ];
 
+
+// 解决路由跳转报错问题
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch((err) => err);
+};
+
 export default new Router({
   mode: "history",
   base: process.env.BASE_URL,
