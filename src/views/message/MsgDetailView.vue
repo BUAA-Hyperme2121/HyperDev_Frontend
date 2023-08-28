@@ -11,7 +11,7 @@
         <el-avatar
           shape="square"
           fit="fill"
-          :src="msgDetail.avatar"
+          :src="avatar"
           style="height: 45px; width: 45px; margin-right: 8px"
         ></el-avatar>
       </div>
@@ -19,42 +19,42 @@
         <!-- 发起者姓名 -->
         <div>
           <span>
-            {{ msgDetail.name }}
+            {{ msgDetail.from_user.username }}
           </span>
         </div>
         <!-- 发起时间 -->
-        <div>
+        <!-- <div>
           <span>
-            {{ msgDetail.create_time }}
+            {{ msgDetail.mention_chat.chat_datetime }}
           </span>
-        </div>
+        </div> -->
       </div>
     </div>
     <!-- 消息的具体内容 -->
     <!-- 聊天中@ -->
-    <div class="chat-content">
+    <div class="chat-content" v-if="msgDetail.mention_chat != null">
       <!-- 群聊名称 -->
       <div class="chat-name">
-        {{ msgDetail.chat_name }}
+        {{ msgDetail.mention_chat.team_name }}
       </div>
       <!-- 聊天气泡 -->
       <div class="chat-bubble">
-        {{ msgDetail.chat_content }}
+        {{ msgDetail.mention_chat.chat }}
       </div>
     </div>
     <!-- 文档中@ -->
-    <div class="doc-content">
+    <div class="doc-content" v-if="msgDetail.mention_doc != null">
       <!-- 文档标题 -->
       <div class="dov-title">
-        {{ msgDetail.doc_title }}
+        {{ msgDetail.mention_doc.doc_name }}
       </div>
       <!-- 文档内容 -->
-      <div class="doc-bubble">
+      <!-- <div class="doc-bubble">
         {{ msgDetail.doc_content }}
-      </div>
+      </div> -->
       <!-- 文档链接 -->
       <div class="doc-url">
-        {{ msgDetail.doc_url }}
+        <span @click="goDoc">文档链接</span>
       </div>
     </div>
     <!-- 团队邀请 -->
@@ -69,21 +69,41 @@
 export default {
   data() {
     return {
-      msgDetail: {
-        title: "消息标题",
-        avatar: "https://avatars.githubusercontent.com/u/20600867?v=4",
-        name: "消息发起者",
-        create_time: "2021-08-01 12:00:00",
-        chat_content: "@ .... aaaaaaaaaaaaaaa",
-        chat_name: "群聊名称",
-        doc_title: "文档标题",
-        doc_content:
-          "@上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文上下文+" +
-          "上下文上下文上下文",
-        doc_url: "文档链接",
-      },
+      msgDetail: {},
+      msgDetailList: [],
       message_id: this.$route.query.message_id,
+      avatar: "https://picsum.photos/200/200",
     };
+  },
+  methods: {
+    goDoc() {
+      this.$router.push({
+        path: `/project/${this.msgDetail.project_id}/doc`,
+        query: {
+          document_id: this.msgDetail.mention_doc.id,
+        },
+      });
+    },
+  },
+
+  mounted() {
+    this.axios({
+      url: "/message",
+      method: "get",
+      params: {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+      },
+    }).then((res) => {
+      this.msgDetailList = res.data.data;
+
+      // 遍历消息列表，找到对应的消息详情
+      for (let i = 0; i < this.msgDetailList.length; i++) {
+        if (this.msgDetailList[i].id == this.message_id) {
+          this.msgDetail = this.msgDetailList[i];
+          break;
+        }
+      }
+    });
   },
 };
 </script>

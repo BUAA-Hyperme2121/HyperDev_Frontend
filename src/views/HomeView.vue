@@ -91,7 +91,7 @@
       </div>
       <!-- 分割线   -->
       <el-divider style="margin: 8px"></el-divider>
-      <router-view />
+      <router-view :key="$route.fullPath" />
     </div>
 
     <!-- 创建团队对话框 -->
@@ -150,7 +150,6 @@ export default {
         path: "/home/team",
         query: {
           team_id: team.team.id,
-          role: team.role,
         },
       });
     },
@@ -232,6 +231,9 @@ export default {
     // console.log(666);
     //获取团队列表
     this.getTeamList();
+
+    // 获取个人信息
+    this.$store.state.userInfo = JSON.parse(localStorage.getItem("userInfo"));
   },
 };
 </script>

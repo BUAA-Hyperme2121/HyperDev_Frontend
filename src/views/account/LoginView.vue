@@ -117,9 +117,11 @@ export default {
                   if (res.data.result == 0) {
                     // console.log(res.data);
                     // 保存用户信息
-                    this.$store.state.userInfo.username = res.data.username;
-                    this.$store.state.userInfo.email = res.data.email;
-                    this.$store.state.userInfo.real_name = res.data.real_name;
+                    localStorage.setItem(
+                      "userInfo",
+                      JSON.stringify(res.data.data)
+                    );
+                    this.$store.state.userInfo = res.data.data;
                   }
                 });
 
