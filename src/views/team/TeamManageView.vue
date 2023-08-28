@@ -10,6 +10,10 @@
           <el-button
             size="small"
             @click="setMemberToBeChange(scope.row.user.id)"
+            v-show="
+              scope.row.user.id != $store.state.userInfo.id &&
+              userRole != 'Common Member'
+            "
             >修改身份</el-button
           >
 
@@ -17,17 +21,26 @@
             size="small"
             type="danger"
             @click.native="handleDelete(scope.row.user.id)"
+            v-show="
+              scope.row.user.id != $store.state.userInfo.id &&
+              userRole != 'Common Member'
+            "
             >移出团队</el-button
+          >
+
+          <!-- 本人 -->
+          <span v-show="scope.row.user.id == $store.state.userInfo.id"
+            >自己</span
           >
         </template>
       </el-table-column>
     </el-table>
     <!-- 管理员可用！！！！！！！
       邀请成员 -->
-    <div class="invite-box">
+    <div class="invite-box" v-show="userRole != 'Common Member'">
       <div style="margin-right: 8px">
         <el-input
-          placeholder="请输入对方邮箱以邀请进入"
+          placeholder="请输入对方邮箱以发送邀请"
           v-model="newMemberEmail"
         >
         </el-input>
@@ -63,6 +76,9 @@ import qs from "qs";
 export default {
   data() {
     return {
+      // 当前用户身份
+      userRole: "",
+
       newMemberEmail: "",
 
       centerDialogVisible: false,
@@ -74,13 +90,36 @@ export default {
       memberToBeChange: "",
     };
   },
-  mounted() {
-    this.getMemberList();
+  async mounted() {
+    let res = await this.axios({
+        method: "get",
+        url: `/team/${this.$route.query.team_id}/user`,
+        params: {
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        },
+      })
+    
+    if (res.data.result == 0) {
+      this.memberList = res.data.data;
+    } else {
+      this.$message({
+        message: res.data.msg,
+        type: "error",
+      });
+    }
+    // 遍历找到当前用户的身份
+    for (let i = 0; i < this.memberList.length; i++) {
+      if (this.memberList[i].user.id == this.$store.state.userInfo.id) {
+        this.userRole = this.memberList[i].role;
+        break;
+      }
+    }
   },
 
   methods: {
     // 邀请成员
     invite() {
+      // 发送邀请消息
       this.axios({
         method: "post",
         url: `/team/${this.$route.query.team_id}/user`,
@@ -92,10 +131,9 @@ export default {
         .then((res) => {
           if (res.data.result == 0) {
             this.$message({
-              message: res.data.msg,
+              message: "发送邀请成功",
               type: "success",
             });
-            this.getMemberList();
           } else {
             this.$message({
               message: res.data.msg,
@@ -106,7 +144,7 @@ export default {
         .catch((err) => {
           console.log(err);
           this.$message({
-            message: "邀请失败",
+            message: "邀请成员失败",
             type: "error",
           });
         });

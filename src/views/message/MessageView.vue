@@ -36,6 +36,8 @@ export default {
   data() {
     return {
       msgList: [],
+
+      timer: null,
     };
   },
   methods: {
@@ -131,9 +133,37 @@ export default {
       }
       this.getMsgList();
     },
+
+    // 终止轮询方法
+    // handleStopPolling() {
+    //   this.timeCount++;
+    //   if (this.timeCount > 4) {
+    //     this.setTimerNull(); // 轮询超过4次终止
+    //     return true; // 阻止代码继续执行
+    //   } else {
+    //     return false;
+    //   }
+    // },
+
+    setTimerNull() {
+      clearInterval(this.timer);
+      this.timer = null;
+    },
+
+    // 轮询开启
+    handlePolling() {
+      this.timer = setInterval(() => {
+        this.getMsgList();
+      }, 1000);
+    },
   },
-  mounted() {
-    this.getMsgList();
+
+  beforeDestory() {
+    this.setTimerNull(); // 组件销毁前清空定时器
+  },
+
+  created() {
+    this.handlePolling(); // 开启轮询
   },
 };
 </script>
