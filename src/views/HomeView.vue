@@ -313,10 +313,14 @@ export default {
   mounted() {
     this.getTeamList();
 
+    console.log('-----------');
     // 获取个人信息
     this.$store.state.userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
+    console.log(this.$store.state.userInfo);
+
     if (this.$store.state.userInfo.home_page_fresh) {
+      console.log("新手引导");
       this.guide();
     }
   },

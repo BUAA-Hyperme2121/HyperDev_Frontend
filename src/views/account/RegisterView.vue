@@ -188,10 +188,6 @@ export default {
             .then((res) => {
               // 注册成功
               if (res.data.result == 0) {
-                this.$message({
-                  message: res.data.msg,
-                  type: "success",
-                });
                 // 跳转到登录页面
                 this.$router.push("/login");
               } else {

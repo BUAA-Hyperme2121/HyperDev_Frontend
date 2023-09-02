@@ -76,79 +76,46 @@ export default {
     };
   },
   methods: {
-    login() {
-      // 处理登录逻辑
-      this.$refs["loginForm"].validate((valid) => {
-        console.log(this.loginForm);
-
-        // var formData = new FormData();
-        // formData.append("email", "2924147820@qq.com");
-        // formData.append("password", "666666");
-
-        if (valid) {
-          this.axios({
-            method: "post",
-            url: "/user/token",
-            data: qs.stringify({
-              email: this.loginForm.email,
-              password: this.loginForm.password,
-            }),
-            // headers: { 'Content-Type': 'multipart/form-data' },
-          })
-            .then((res) => {
-              if (res.data.result == 0) {
-                // 登录成功
-                this.$message({
-                  message: "登录成功",
-                  type: "success",
-                });
-                // console.log(res.data);
-                // 保存JWT
-                console.log(res.data.data.jwt);
-                localStorage.setItem("jwt", JSON.stringify(res.data.data.jwt));
-                // 获取用户信息
-                this.axios({
-                  method: "get",
-                  url: "/user/me",
-                  params: {
-                    jwt: JSON.parse(localStorage.getItem("jwt")),
-                  },
-                }).then((res) => {
-                  if (res.data.result == 0) {
-                    // console.log(res.data);
-                    // 保存用户信息
-                    localStorage.setItem(
-                      "userInfo",
-                      JSON.stringify(res.data.data)
-                    );
-                    this.$store.state.userInfo = res.data.data;
-                  }
-                });
-
-                // 跳转到home页
-                this.$router.push("/home");
-              } else {
-                // 登录失败
-                this.$message({
-                  message: res.data.msg,
-                  type: "error",
-                });
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-              this.$message({
-                message: "服务器开摆了~(￣▽￣)~*",
-                type: "error",
-              });
-            });
-        } else {
-          this.$message({
-            message: "请检查输入是否正确",
-            type: "error",
-          });
-        }
+    async login() {
+      let res = await this.axios({
+        method: "post",
+        url: "/user/token",
+        data: qs.stringify({
+          email: this.loginForm.email,
+          password: this.loginForm.password,
+        }),
+        // headers: { 'Content-Type': 'multipart/form-data' },
       });
+
+      if (res.data.result == 0) {
+        // 登录成功
+        this.$message({
+          message: "登录成功",
+          type: "success",
+        });
+        // console.log(res.data);
+        // 保存JWT
+        console.log(res.data.data.jwt);
+        localStorage.setItem("jwt", JSON.stringify(res.data.data.jwt));
+        // 获取用户信息
+        let tmpRes = await this.axios({
+          method: "get",
+          url: "/user/me",
+          params: {
+            jwt: JSON.parse(localStorage.getItem("jwt")),
+          },
+        });
+
+        if (tmpRes.data.result == 0) {
+          // console.log(res.data);
+          // 保存用户信息
+          localStorage.setItem("userInfo", JSON.stringify(tmpRes.data.data));
+          this.$store.state.userInfo = tmpRes.data.data;
+        }
+
+        // 跳转到home页
+        this.$router.push("/home");
+      }
     },
   },
 };
