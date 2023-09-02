@@ -10,8 +10,6 @@
     <el-menu mode="horizontal" @select="handleSelect">
       <el-menu-item index="1"> 团队项目 </el-menu-item>
       <el-menu-item index="2"> 团队管理 </el-menu-item>
-      <el-menu-item index="3"> 团队设置 </el-menu-item>
-      <el-menu-item index="4"> 回收站 </el-menu-item>
     </el-menu>
     <router-view />
   </div>

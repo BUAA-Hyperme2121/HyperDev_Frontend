@@ -30,7 +30,7 @@
       <div>
         <el-menu @select="handleSelect">
           <!-- 我的团队 -->
-          <el-submenu index="1">
+          <el-submenu index="1" id="step1">
             <template slot="title">
               <i class="el-icon-location"></i>
               <span>我的团队</span>
@@ -54,12 +54,12 @@
             </el-menu-item>
           </el-submenu>
           <!-- 消息中心 -->
-          <el-menu-item index="2">
+          <el-menu-item index="2" id="step2">
             <i class="el-icon-bell"></i>
             <span>消息中心</span>
           </el-menu-item>
           <!-- 聊天区域 -->
-          <el-menu-item index="3">
+          <el-menu-item index="3" id="step3">
             <i class="el-icon-chat-dot-square"></i>
             <span>聊天区域</span>
           </el-menu-item>
@@ -122,6 +122,8 @@
 
 <script>
 import qs from "qs";
+import introJs from "intro.js";
+import "intro.js/introjs.css";
 export default {
   data() {
     return {
@@ -233,15 +235,55 @@ export default {
           });
         });
     },
+
+    guide() {
+      introJs()
+        .setOptions({
+          steps: [
+            {
+              element: "#step1", // 目标元素
+              intro: "管理团队🙌", // 提示文本
+              position: "right", // 提示位置
+            },
+            {
+              element: "#step2", // 目标元素
+              intro: "查看消息⏰", // 提示文本
+              position: "right",
+            },
+            {
+              element: "#step3", // 目标元素
+              intro: "与团队中成员进行交流💬", // 提示文本
+              position: "right", // 提示位置
+            },
+          ],
+          nextLabel: "下一个", // 下一个按钮文字
+          prevLabel: "上一个", // 上一个按钮文字
+          // skipLabel: "跳过", // 跳过按钮文字
+          doneLabel: "完成", // 完成按钮文字
+          hidePrev: true, // 在第一步中是否隐藏上一个按钮
+          // 一开就没有完成按钮
+          // hideNext: true, // 在最后一步中是否隐藏下一个按钮
+          exitOnOverlayClick: false, // 点击叠加层时是否退出介绍
+          showStepNumbers: false, // 是否显示红色圆圈的步骤编号
+          disableInteraction: true, // 是否禁用与突出显示的框内的元素的交互，就是禁止点击
+          showBullets: false, // 是否显示面板指示点
+        })
+        .onbeforeexit(() => {
+          console.log("beforeexit");
+        })
+        .start();
+    },
   },
 
   mounted() {
-    // console.log(666);
-    //获取团队列表
     this.getTeamList();
 
     // 获取个人信息
     this.$store.state.userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+    if (this.$store.state.userInfo.fresh) {
+      this.guide();
+    }
   },
 };
 </script>
