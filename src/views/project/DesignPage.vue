@@ -1,12 +1,12 @@
 <!-- eslint-disable no-unused-vars -->
 <template>
   <div class="home" v-if="shouldRenderComponent">
-    <Toolbar ref="toolbar" />
+    <Toolbar ref="toolbar" id="toolbar" />
 
     <main>
       <!-- 左侧组件列表 -->
       <section class="left">
-        <ComponentList />
+        <ComponentList id="left" />
         <RealTimeComponentList />
       </section>
       <!-- 中间画布 -->
@@ -23,7 +23,7 @@
       </section>
       <!-- 右侧属性列表 -->
       <section class="right">
-        <el-tabs v-if="curComponent" v-model="activeName">
+        <el-tabs v-if="curComponent" v-model="activeName" id="right">
           <el-tab-pane label="属性" name="attr">
             <component :is="curComponent.component + 'Attr'" />
           </el-tab-pane>
@@ -57,6 +57,8 @@ import { changeComponentSizeWithScale } from "@/utils/changeComponentsSizeWithSc
 import { setDefaultcomponentData } from "@/store/snapshot";
 import axios from "axios";
 import { Message } from "element-ui";
+import introJs from "intro.js";
+import "intro.js/introjs.css";
 export default {
   components: {
     Editor,
@@ -158,6 +160,13 @@ export default {
     // 全局监听按键事件
     listenGlobalKeyDown();
   },
+  mounted() {
+    this.$store.state.userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+    if (this.$store.state.userInfo.project_fresh) {
+      this.guide();
+    }
+  },
   methods: {
     handleDrop(e) {
       e.preventDefault();
@@ -233,6 +242,72 @@ export default {
         components: [],
       };
       this.$store.state.editor = null;
+    },
+    guide() {
+      introJs()
+        .setOptions({
+          steps: [
+            {
+              element: "#toolbar", // 目标元素
+              intro: "在工具栏选择对页面的操作🧰", // 提示文本
+              position: "top", // 提示位置
+            },
+            {
+              element: "#left", // 目标元素
+              intro: "选择组件并拖动👆", // 提示文本
+              position: "right",
+            },
+            {
+              element: "#right", // 目标元素
+              intro: "在右侧设置组件的样式与事件😍", // 提示文本
+              position: "right", // 提示位置
+            },
+          ],
+          nextLabel: "下一个", // 下一个按钮文字
+          prevLabel: "上一个", // 上一个按钮文字
+          // skipLabel: "跳过", // 跳过按钮文字
+          doneLabel: "完成", // 完成按钮文字
+          hidePrev: true, // 在第一步中是否隐藏上一个按钮
+          // 一开就没有完成按钮
+          // hideNext: true, // 在最后一步中是否隐藏下一个按钮
+          exitOnOverlayClick: false, // 点击叠加层时是否退出介绍
+          showStepNumbers: false, // 是否显示红色圆圈的步骤编号
+          disableInteraction: true, // 是否禁用与突出显示的框内的元素的交互，就是禁止点击
+          showBullets: false, // 是否显示面板指示点
+        })
+        .onbeforeexit(() => {
+          let formData = new FormData();
+          formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
+          this.axios({
+            method: "PUT",
+            url: `/project/`,
+            data: formData,
+          })
+            .then((res) => {
+              console.log(res);
+              this.axios({
+                method: "get",
+                url: "/user/me",
+                params: {
+                  jwt: JSON.parse(localStorage.getItem("jwt")),
+                },
+              }).then((res) => {
+                if (res.data.result == 0) {
+                  // console.log(res.data);
+                  // 保存用户信息
+                  localStorage.setItem(
+                    "userInfo",
+                    JSON.stringify(res.data.data)
+                  );
+                  this.$store.state.userInfo = res.data.data;
+                }
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .start();
     },
   },
 };

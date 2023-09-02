@@ -48,7 +48,7 @@
       </div>
 
       <div class="image-container-right">
-        <img src="../assets/index/chat.png" alt="" />
+        <img src="../assets/index/index.png" alt="" />
       </div>
     </div>
     <div class="card" ref="box2">
@@ -62,7 +62,7 @@
         </ul>
       </div>
       <div class="image-container-left">
-        <img src="../assets/index/page.png" alt="" />
+        <img src="../assets/index/chat.png" alt="" />
       </div>
     </div>
     <div class="card" ref="box3">

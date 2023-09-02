@@ -495,7 +495,7 @@ export default {
   border-bottom: 2px solid #808080;
 }
 .operation-container .operation-notice {
-  margin-top: 10px;
+  margin-top: 150px;
 
   /* font-family: 'Courier New', Courier, monospace; */
   font-family: "PingFang SC";

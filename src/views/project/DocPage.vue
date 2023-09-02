@@ -1,5 +1,5 @@
 <template>
-  <div style="text-align: center">
+  <div style="text-align: center; width: 90%; margin: auto">
     <h3>{{ this.document_title }}</h3>
     <div ref="editor" class="ql-editor"></div>
 
@@ -93,7 +93,7 @@
       </el-table>
     </el-dialog>
 
-    <el-dialog :visible.sync="previewDialogVisible" width="90%"
+    <el-dialog :visible.sync="previewDialogVisible" width="76%"
       ><div ref="preview" class="preview-editor"></div>
     </el-dialog>
   </div>
@@ -276,6 +276,7 @@ export default {
       this.quill,
       this.provider.awareness
     );
+
     //设置自动保存
     /* this.time_inter = setInterval(() => {
       this.saveDoc();
@@ -622,11 +623,11 @@ export default {
 </script>
 <style scoped>
 .ql-editor {
-  height: 540px;
+  height: 560px;
   background-color: white;
 }
 .preview-editor {
-  height: 540px;
+  height: 500px;
   background-color: white;
 }
 </style>
