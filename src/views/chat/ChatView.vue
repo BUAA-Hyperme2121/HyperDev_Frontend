@@ -97,6 +97,7 @@
         <!-- 输入框 -->
         <div>
           <el-input
+            @input.native="handleInput"
             type="textarea"
             maxlength="50"
             show-word-limit
@@ -371,6 +372,13 @@ export default {
     };
   },
   methods: {
+    // 监听@事件
+    handleInput(event) {
+      const inputValue = event.target.value;
+      if (inputValue.includes("@")) {
+        this.dialogVisible = true;
+      }
+    },
     // 下载文件（聊天记录里面的）
     downloadFile(file, name) {
       this.axios({
@@ -1058,13 +1066,12 @@ export default {
       };
     });
 
-    // 监听键盘输入
-    document.onkeydown = (e) => {
-      // console.log(e);
-      if (e.key == "@") {
-        this.dialogVisible = true;
-      }
-    };
+    // 获取inputRef，监听键盘输入
+    // this.$refs.inputRef.addEventListener("keydown", (e) => {
+    //   if (e.key == "@") {
+    //     this.dialogVisible = true;
+    //   }
+    // });
   },
 };
 </script>
@@ -1074,11 +1081,17 @@ export default {
   margin-right: 20px;
   height: 600px;
   display: flex;
+  border-radius: 10px;
+  /* font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; */
 }
 
 .chat-left {
-  width: 20%;
-  background-color: rgb(181, 183, 184);
+  border-radius: 10px;
+  width: 22%;
+  margin-right: 10px;
+  margin-left: 10px;
+  background-color: #c5d6d6;
+  height: 550px;
 }
 .top-search {
   display: flex;
@@ -1090,11 +1103,13 @@ export default {
 .chat-list {
   margin-top: 10px;
   overflow-y: auto;
-  height: 500px;
+  height: 480px;
 }
 .chat-right {
+  border-radius: 10px;
   width: 80%;
-  background-color: #d4d9de;
+  background-color: #c5d6d6;
+  height: 550px;
 }
 .chat-obj-name {
   display: flex;
@@ -1109,7 +1124,6 @@ export default {
 .tools {
   display: flex;
   /* align-items: center; */
-  border-top: 1px solid #ccc;
 }
 
 .tools > div {

@@ -41,6 +41,9 @@ export default {
   cursor: pointer;
   padding: 10px;
   border-bottom: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #c5d6d6;
+  margin: 8px;
 }
 .list-item:hover {
   background-color: #f5f5f5;

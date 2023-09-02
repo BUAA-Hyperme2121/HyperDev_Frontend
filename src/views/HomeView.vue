@@ -124,6 +124,7 @@
 import qs from "qs";
 import introJs from "intro.js";
 import "intro.js/introjs.css";
+import { re } from "mathjs";
 export default {
   data() {
     return {
@@ -269,7 +270,41 @@ export default {
           showBullets: false, // 是否显示面板指示点
         })
         .onbeforeexit(() => {
-          console.log("beforeexit");
+          console.log("onbeforeexit");
+          // 修改新手引导状态
+          this.axios({
+            url: "/user/",
+            method: "put",
+            data: qs.stringify({
+              jwt: JSON.parse(localStorage.getItem("jwt")),
+            }),
+          }).then((res) => {
+            if (res.data.result == 0) {
+              // 获取用户信息
+              this.axios({
+                method: "get",
+                url: "/user/me",
+                params: {
+                  jwt: JSON.parse(localStorage.getItem("jwt")),
+                },
+              }).then((res) => {
+                if (res.data.result == 0) {
+                  // console.log(res.data);
+                  // 保存用户信息
+                  localStorage.setItem(
+                    "userInfo",
+                    JSON.stringify(res.data.data)
+                  );
+                  this.$store.state.userInfo = res.data.data;
+                }
+              });
+            } else {
+              this.$message({
+                message: "修改新手引导状态失败",
+                type: "error",
+              });
+            }
+          });
         })
         .start();
     },
@@ -281,7 +316,7 @@ export default {
     // 获取个人信息
     this.$store.state.userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-    if (this.$store.state.userInfo.fresh) {
+    if (this.$store.state.userInfo.home_page_fresh) {
       this.guide();
     }
   },
@@ -307,7 +342,7 @@ export default {
   width: 100%;
 }
 .home-left {
-  width: 20%;
+  width: 16%;
   background-color: 0xff0000;
 }
 .logo {
@@ -318,7 +353,7 @@ export default {
   color: black;
 }
 .home-right {
-  width: 78%;
+  width: 84%;
   background-color: 0x00ff00;
 }
 
