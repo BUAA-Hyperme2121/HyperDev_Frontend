@@ -90,12 +90,12 @@ const routes = [
       {
         path: "doclist",
         name: "doclist",
-        component: () => import("../views/project/DocList.vue"),
+        component: () => import("../views/project/Doc2List.vue"),
       },
       {
         path: "doc",
         name: "doc",
-        component: () => import("../views/project/Doc2Page.vue"),
+        component: () => import("../views/project/DocPage.vue"),
       },
       {
         path: "design",
@@ -109,8 +109,17 @@ const routes = [
     name: "docread",
     component: () => import("../views/project/DocRead.vue"),
   },
+  {
+    path: "/designlistread/:project_id",
+    name: "designlistread",
+    component: () => import("../views/project/DesignListRead.vue"),
+  },
+  {
+    path: "/designread",
+    name: "designread",
+    component: () => import("../views/project/DesignRead.vue"),
+  },
 ];
-
 
 // 解决路由跳转报错问题
 const originalPush = Router.prototype.push;

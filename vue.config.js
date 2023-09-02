@@ -14,6 +14,19 @@ module.exports = defineConfig({
   //   }
   // },
 });
+const path = require("path");
+module.exports = {
+  chainWebpack: (config) => {
+    config.module
+      .rule("svg")
+      .test(/\.svg$/) // 匹配 SVG 文件
+      .include.add(path.resolve(__dirname, "src")) // 确保仅在特定目录中应用该规则，例如 'src'
+      .end()
+      .use("html-loader") // 使用 html-loader
+      .loader("html-loader")
+      .end();
+  },
+};
 module.exports = {
   lintOnSave: false,
 };

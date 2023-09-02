@@ -1,130 +1,100 @@
 <template>
-  <div class="order">
-    <div style="text-align: center">
-      <h3>{{ this.document_title }}</h3>
-    </div>
-    <div id="vditor"></div>
-    <!--div style="margin-top: 30px">
-      <el-button
-        type="primary"
-        style="margin-left: 450px; margin-right: 100px"
-        @click="atOthers"
-        >艾特</el-button>
-      <el-button type="primary" @click="saveDoc" style="margin-left: 500px"
-        >保存</el-button
-      >
-    </div-->
+  <div style="text-align: center">
+    <h3>{{ this.document_title }}</h3>
+    <div ref="editor" class="ql-editor"></div>
   </div>
 </template>
-<script>
-import { ThemeRiverChart } from "echarts/charts";
-import Vditor from "vditor";
-import "vditor/dist/index.css";
 
+<script>
+import Quill from "quill";
+import QuillCursors from "quill-cursors";
+import "quill/dist/quill.snow.css"; // 使用了 snow 主题色
+import * as Y from "yjs";
+import { QuillBinding } from "y-quill";
+import { WebsocketProvider } from "y-websocket";
+Quill.register("modules/cursors", QuillCursors);
 export default {
   data() {
     return {
-      contentEditor: "",
       document_title: "测试文档",
-      text: "",
+      quill: null,
+      ydoc: null,
+      ytext: null,
+      provider: null,
+      binding: null,
+      currentPosition: -1,
+      can_modify: false,
     };
   },
-  created() {
-    this.$showLoading.show();
-    let project_id = this.$route.query.project_id;
-    let share_code = this.$route.query.share_code;
-    this.axios({
-      method: "GET",
-      url: `/project/${project_id}/document/share`,
-      params: {
-        share_code: share_code,
-      },
-    })
-      .then((res) => {
-        this.text = res.data.data.text;
-        this.document_title = res.data.data.doc_name;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    this.$showLoading.hide();
-  },
   mounted() {
-    let that = this;
-    this.contentEditor = new Vditor("vditor", {
-      height: 550,
-      toolbarConfig: {
-        pin: true,
-      },
-      toolbar: [
-        "emoji",
-        "headings",
-        "bold",
-        "italic",
-        "strike",
-        "link",
-        {
-          hotkey: "",
-          name: "save",
-          tipPosition: "s",
-          tip: "保存",
-          className: "right",
-          icon: `<img style="height: 16px" src='https://img.58cdn.com.cn/escstatic/docs/imgUpload/idocs/save.svg'/>`,
-          click() {
-            that.saveDoc();
-          },
-        },
-        "|",
-        "list",
-        "ordered-list",
-        "check",
-        "outdent",
-        "indent",
-        "|",
-        "quote",
-        "line",
-        "code",
-        "inline-code",
-        "insert-before",
-        "insert-after",
-        "|",
-        "table",
-        "|",
-        "fullscreen",
-        "edit-mode",
-      ],
-      cache: {
-        enable: false,
-      },
-      after: () => {
-        this.contentEditor.setValue(this.text);
-      },
-    });
+    this.getTitle();
   },
   methods: {
-    saveDoc() {
-      let formData = new FormData();
-      formData.append("doc_name", this.document_title);
-      formData.append("text", this.contentEditor.getValue());
+    getTitle() {
+      this.$showLoading.show();
       let project_id = this.$route.query.project_id;
       let share_code = this.$route.query.share_code;
       this.axios({
-        method: "PUT",
-        url: `/project/${project_id}/document/share?share_code=${share_code}`,
-        data: formData,
+        method: "GET",
+        url: `/project/${project_id}/document/share`,
+        params: {
+          share_code: share_code,
+        },
       })
         .then((res) => {
-          console.log(res.data);
-          if (res.data.result == 1) {
-            this.$message.error("无权限");
-          } else {
-            this.$message.success("保存成功！");
-          }
+          console.log(res);
+          this.document_title = res.data.data.doc_name;
+          this.can_modify = res.data.data.can_modify;
+
+          //创建quill编辑
+          this.quill = new Quill(this.$refs.editor, {
+            modules: {
+              cursors: true,
+              toolbar: {
+                container: [
+                  [{ header: [1, 2, 3, false] }],
+                  ["bold", "italic", "underline"],
+                  ["link"],
+                  [{ list: "ordered" }, { list: "bullet" }],
+                  ["image", "code-block"],
+                ],
+                handlers: {},
+              },
+              history: {
+                userOnly: true,
+              },
+            },
+            placeholder: "...文档内容...",
+            theme: "snow",
+            readOnly: !this.can_modify,
+          });
+          this.ydoc = new Y.Doc();
+          this.ytext = this.ydoc.getText("quill");
+          this.provider = new WebsocketProvider(
+            "ws://101.42.238.192",
+            this.$route.query.project_id +
+              "and" +
+              this.$route.query.document_id,
+            this.ydoc
+          );
+          this.binding = new QuillBinding(
+            this.ytext,
+            this.quill,
+            this.provider.awareness
+          );
+          this.$showLoading.hide();
         })
         .catch((err) => {
           console.log(err);
+          this.$showLoading.hide();
         });
     },
   },
 };
 </script>
+<style scoped>
+.ql-editor {
+  height: 500px;
+  background-color: white;
+}
+</style>

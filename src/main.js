@@ -13,9 +13,10 @@ import "@/styles/reset.css";
 import "@/styles/global.scss";
 import ShowLoading from "./assets/showLoading.js";
 
-import Contextmenu from "vue-contextmenujs"
+import Contextmenu from "vue-contextmenujs";
 Vue.use(Contextmenu);
 
+ElementUI.Dialog.props.lockScroll.default = false;
 Vue.use(VueParticles);
 
 Vue.use(ShowLoading);
