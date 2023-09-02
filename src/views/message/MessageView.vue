@@ -175,19 +175,21 @@ export default {
   display: flex;
 }
 .msg-left {
-  width: 25%;
-  height: 100%;
-  background-color: #f5f5f5;
-  float: left;
+  border-radius: 10px;
+  width: 24%;
+  margin-right: 10px;
+  margin-left: 10px;
+  background-color: #c5d6d6;
+  height: 550px;
 }
 .msg-tool {
   display: flex;
   padding: 6px;
 }
 .msg-right {
-  width: 75%;
-  height: 100%;
-  background-color: #fff;
-  float: left;
+  border-radius: 10px;
+  width: 80%;
+  background-color: #c5d6d6;
+  height: 550px;
 }
 </style>

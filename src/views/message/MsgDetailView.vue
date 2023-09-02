@@ -35,18 +35,18 @@
     <div class="chat-content" v-if="msgDetail.mention_chat != null">
       <!-- 群聊名称 -->
       <div class="chat-name">
-        {{ msgDetail.mention_chat.team_name }}
+        群聊名称：{{ msgDetail.group_name }}
       </div>
       <!-- 聊天气泡 -->
-      <div class="chat-bubble">
+      <div class="text-left">
         {{ msgDetail.mention_chat.chat }}
       </div>
     </div>
     <!-- 文档中@ -->
     <div class="doc-content" v-if="msgDetail.mention_doc != null">
       <!-- 文档标题 -->
-      <div class="dov-title">
-        {{ msgDetail.mention_doc.doc_name }}
+      <div class="doc-title">
+        文档名称：{{ msgDetail.mention_doc.doc_name }}
       </div>
       <!-- 文档内容 -->
       <!-- <div class="doc-bubble">
@@ -61,7 +61,7 @@
     <div class="invite-content" v-if="msgDetail.invite_team != null">
       <!-- 团队信息 -->
       <div class="team-info">
-        <span>{{ msgDetail.invite_team.team_name }}</span>
+        团队名称：<span>{{ msgDetail.invite_team.team_name }}</span>
       </div>
       <!-- 加入或拒绝按钮 -->
       <div class="team-btn" v-if="msgDetail.invite_state == 0">
@@ -263,13 +263,12 @@ export default {
   font-weight: bold;
   margin-right: 10px;
 }
-.chat-bubble {
-  font-size: 16px;
-  background-color: #409eff;
-  padding: 10px;
+
+.text-left {
+  background-color: #f0f0f0;
   border-radius: 5px;
-  font-weight: bold;
-  text-align: left;
+  padding: 8px;
+  margin-top: 20px;
 }
 .doc-content {
   margin-top: 10px;
@@ -288,8 +287,12 @@ export default {
   text-align: left;
 }
 .doc-url {
+  margin-top: 10px;
   font-size: 16px;
+}
+
+.team-info {
   font-weight: bold;
-  margin-right: 10px;
+  margin-bottom: 10px;
 }
 </style>

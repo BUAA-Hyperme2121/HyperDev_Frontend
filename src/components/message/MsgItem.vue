@@ -1,5 +1,5 @@
 <template>
-  <div class="list-item" style="background-color: transparent">
+  <div class="list-item">
     <!-- 用户或者群聊头像 -->
     <div class="chat-avatar">
       <el-avatar
@@ -43,7 +43,7 @@ export default {
   border-bottom: 1px solid #ccc;
 }
 .list-item:hover {
-  background-color: #999494;
+  background-color: #f5f5f5;
 }
 .unread {
   margin-left: auto;
