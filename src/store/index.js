@@ -25,7 +25,7 @@ const data = {
     editMode: "edit", // 编辑器模式 edit preview
     canvasStyleData: {
       // 页面全局数据
-      width: 1240,
+      width: 1000,
       height: 760,
       scale: 100,
       color: "#000",

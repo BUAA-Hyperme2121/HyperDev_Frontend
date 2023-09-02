@@ -16,7 +16,6 @@
           style="width: 100%; background-color: rgba(219, 219, 219, 0.373)"
           border
           height="500"
-          show-header="false"
         >
           <el-table-column
             style="background-color: rgba(219, 219, 219, 0.373)"
@@ -253,7 +252,7 @@ export default {
           console.log(err);
         });
     },
-    async getOldDocumentToken(documentID) {
+    async goOldDocument(documentID) {
       let document_id = documentID;
       let project_id = this.$route.params.project_id;
       this.$router.push({

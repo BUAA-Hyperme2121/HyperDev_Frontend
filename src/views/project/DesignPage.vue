@@ -1,7 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 <template>
   <div class="home" v-if="shouldRenderComponent">
-    <Toolbar />
+    <Toolbar ref="toolbar" />
 
     <main>
       <!-- 左侧组件列表 -->
@@ -80,6 +80,7 @@ export default {
     })
       .then((res) => {
         if (res.data.result != 0) {
+          console.log(res);
           Message.error("无法获得权限");
           next(from.fullPath);
         } else {
@@ -97,17 +98,17 @@ export default {
       jwt: JSON.parse(localStorage.getItem("jwt")),
       try_modify: false,
     });
-    this.$store.commit("setComponentData", []);
-    this.$store.commit("setCanvasStyle", {
-      // 页面全局数据
-      width: 1240,
+    this.$store.state.editMode = "edit";
+    this.$store.state.canvasStyleData = {
+      width: 1000,
       height: 760,
       scale: 100,
       color: "#000",
       opacity: 1,
       background: "#fff",
       fontSize: 14,
-    });
+    };
+    this.initCanvas();
     next();
   },
   data() {
@@ -115,6 +116,7 @@ export default {
       activeName: "attr",
       reSelectAnimateIndex: undefined,
       shouldRenderComponent: true,
+      previewable: false,
     };
   },
   computed: mapState([
@@ -126,17 +128,10 @@ export default {
   ]),
   created() {
     this.$showLoading.show();
-    this.$store.commit("setComponentData", []);
-    this.$store.commit("setCanvasStyle", {
-      // 页面全局数据
-      width: 1240,
-      height: 760,
-      scale: 100,
-      color: "#000",
-      opacity: 1,
-      background: "#fff",
-      fontSize: 14,
-    });
+    //初始化数据
+    this.initCanvas();
+
+    //申请数据
     let project_id = this.$route.params.project_id;
     let prototype_id = this.$route.query.page_id;
     this.axios({
@@ -149,12 +144,12 @@ export default {
       .then((res) => {
         let pageData = res.data.data.page_data;
         let pageStyle = res.data.data.page_style;
-        this.$store.commit("setComponentData", JSON.parse(pageData));
-        this.$store.commit("setCanvasStyle", JSON.parse(pageStyle));
+        let previewable = res.data.data.previewable;
         setDefaultcomponentData(JSON.parse(pageData));
+        this.$store.commit("setCanvasStyle", JSON.parse(pageStyle));
+        this.$store.commit("setComponentData", JSON.parse(pageData));
+        this.$refs.toolbar.getPreviewable(previewable);
         this.$showLoading.hide();
-        console.log(pageData);
-        console.log(pageStyle);
       })
       .catch((err) => {
         console.log(err);
@@ -175,8 +170,6 @@ export default {
         component.style.top = e.clientY - rectInfo.y;
         component.style.left = e.clientX - rectInfo.x;
         component.id = generateID();
-
-        // 根据画面比例修改组件样式比例 https://github.com/woai3c/visual-drag-demo/issues/91
         changeComponentSizeWithScale(component);
 
         this.$store.commit("addComponent", { component });
@@ -204,6 +197,42 @@ export default {
       if (e.button != 2) {
         this.$store.commit("hideContextMenu");
       }
+    },
+    initCanvas() {
+      this.$store.state.editMode = "edit";
+      this.$store.state.canvasStyleData = {
+        // 页面全局数据
+        width: 1000,
+        height: 760,
+        scale: 100,
+        color: "#000",
+        opacity: 1,
+        background: "#fff",
+        fontSize: 14,
+      };
+      this.$store.state.isInEdiotr = false;
+      this.$store.state.componentData = [];
+      this.$store.state.curComponent = null;
+      this.$store.state.curComponentIndex = null;
+      this.$store.state.isClickComponent = false;
+      this.$store.state.snapshotData = []; // 编辑器快照数据
+      this.$store.state.snapshotIndex = -1; // 快照索引
+      this.$store.state.copyData = null; // 复制粘贴剪切
+      this.$store.state.isCut = false;
+      this.$store.state.menuTop = 0; // 右击菜单数据
+      this.$store.state.menuLeft = 0;
+      this.$store.state.menuShow = false;
+      this.$store.state.areaData = {
+        // 选中区域包含的组件以及区域位移信息
+        style: {
+          top: 0,
+          left: 0,
+          width: 0,
+          height: 0,
+        },
+        components: [],
+      };
+      this.$store.state.editor = null;
     },
   },
 };

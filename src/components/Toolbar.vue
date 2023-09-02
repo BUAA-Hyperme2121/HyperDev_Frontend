@@ -14,8 +14,8 @@
         >预览</el-button
       >
       <el-button @click="save">保存</el-button>
-      <el-button @click="clearCanvas">清空画布</el-button>
-      <el-button :disabled="!areaData.components.length" @click="compose"
+      <el-button @click="clearCanvas">清空</el-button>
+      <!-- <el-button :disabled="!areaData.components.length" @click="compose"
         >组合</el-button
       >
       <el-button
@@ -27,9 +27,17 @@
         @click="decompose"
       >
         拆分
-      </el-button>
-      <el-button @click="preview(true)">截图</el-button>
-
+      </el-button> -->
+      <el-button @click="preview(true)">导出</el-button>
+      <el-button @click="showDialog()">模板</el-button>
+      <el-button @click="showLink()">分享链接</el-button>
+      <el-switch
+        v-model="previewable"
+        active-text="共享"
+        @change="changePreviewable"
+        style="margin-left: 10px; margin-top: -2px"
+      >
+      </el-switch>
       <div class="canvas-config">
         <span>画布大小</span>
         <input v-model="canvasStyleData.width" />
@@ -37,8 +45,8 @@
         <input v-model="canvasStyleData.height" />
       </div>
       <div class="canvas-config">
-        <span>画布比例</span>
-        <input v-model="scale" @input="handleScaleChange" /> %
+        <span>比例</span>
+        <input v-model="scale" @input="handleScaleChange" />
       </div>
     </div>
 
@@ -49,10 +57,39 @@
       @close="handlePreviewChange"
     />
     <AceEditor v-if="isShowAceEditor" @closeEditor="closeEditor" />
+    <el-dialog
+      :visible.sync="dialogVisible"
+      title="选择你想要的模板"
+      :append-to-body="true"
+      :width="'250px'"
+    >
+      <el-select v-model="selectedItem">
+        <el-option label="PC在线商城" value="A"></el-option>
+        <el-option label="PC视频网站" value="B"></el-option>
+        <el-option label="PC视频播放页面" value="C"></el-option>
+        <el-option label="mobile播放音乐" value="D"></el-option>
+        <el-option label="mobile页面样例" value="E"></el-option>
+      </el-select>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="importFile" type="primary">确认</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="linkVisible"
+      title="分享链接"
+      :append-to-body="true"
+      :width="'250px'"
+    >
+      <div style="text-align: center">
+        <h5 v-if="previewable">{{ link }}</h5>
+        <h5 v-else>请先设置为共享</h5>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import pageList from "@/assets/template/page_template";
 import FileSaver from "file-saver";
 import generateID from "@/utils/generateID";
 import toast from "@/utils/toast";
@@ -62,6 +99,7 @@ import AceEditor from "@/components/Editor/AceEditor.vue";
 import { commonStyle, commonAttr } from "@/custom-component/component-list";
 import eventBus from "@/utils/eventBus";
 import { $ } from "@/utils/utils";
+import { deepCopy } from "@/utils/utils";
 import changeComponentsSizeWithScale, {
   changeComponentSizeWithScale,
 } from "@/utils/changeComponentsSizeWithScale";
@@ -75,6 +113,11 @@ export default {
       timer: null,
       isScreenshot: false,
       scale: 100,
+      dialogVisible: false,
+      selectedItem: "",
+      linkVisible: false,
+      link: "",
+      previewable: false,
     };
   },
   computed: mapState([
@@ -92,6 +135,45 @@ export default {
     this.scale = this.canvasStyleData.scale;
   },
   methods: {
+    getPreviewable(previewable) {
+      this.previewable = previewable;
+    },
+    changePreviewable() {
+      let project_id = this.$route.params.project_id;
+      let prototype_id = this.$route.query.page_id;
+      this.axios.put(`/project/${project_id}/prototype/${prototype_id}`, {
+        jwt: JSON.parse(localStorage.getItem("jwt")),
+        previewable: this.previewable,
+      });
+    },
+    showLink() {
+      if (this.previewable) {
+        //获取分享码
+        let project_id = this.$route.params.project_id;
+        let prototype_id = this.$route.query.page_id;
+        this.axios({
+          method: "GET",
+          url: `/project/${project_id}/prototype/${prototype_id}`,
+          params: {
+            jwt: JSON.parse(localStorage.getItem("jwt")),
+            need_share: "true",
+          },
+        })
+          .then((res) => {
+            console.log(res);
+            this.link = `http://8.130.12.73/designread?project_id=${project_id}&document_id=${prototype_id}&share_code=${res.data.data.share_code}`;
+            this.linkVisible = true;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        this.linkVisible = true;
+      }
+    },
+    showDialog() {
+      this.dialogVisible = true;
+    },
     handleScaleChange() {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
@@ -194,14 +276,24 @@ export default {
     },
 
     save() {
-      console.log(localStorage.getItem("canvasData"));
-      console.log(localStorage.getItem("canvasStyle"));
       localStorage.setItem("canvasData", JSON.stringify(this.componentData));
       localStorage.setItem("canvasStyle", JSON.stringify(this.canvasStyleData));
+      console.log(localStorage.getItem("canvasData"));
+      console.log(localStorage.getItem("canvasStyle"));
+      /* const a = new Blob([JSON.stringify(this.componentData)], {
+        type: "text/plain;charset=utf-8",
+      });
+      FileSaver.saveAs(a, "canvasData.js");
+      const b = new Blob([JSON.stringify(this.canvasStyleData)], {
+        type: "text/plain;charset=utf-8",
+      });
+      FileSaver.saveAs(b, "canvasStyle.js"); */
+
+      console.log(this.componentData);
       let formData = new FormData();
       formData.append("jwt", JSON.parse(localStorage.getItem("jwt")));
-      formData.append("page_style", localStorage.getItem("canvasStyle"));
-      formData.append("page_data", localStorage.getItem("canvasData"));
+      formData.append("page_style", JSON.stringify(this.canvasStyleData));
+      formData.append("page_data", JSON.stringify(this.componentData));
       let project_id = this.$route.params.project_id;
       let prototype_id = this.$route.query.page_id;
       this.axios({
@@ -215,6 +307,7 @@ export default {
         })
         .catch((err) => {
           console.log(err);
+          this.$message.error("保存失败");
         });
     },
 
@@ -227,6 +320,40 @@ export default {
     handlePreviewChange() {
       this.isShowPreview = false;
       this.$store.commit("setEditMode", "edit");
+    },
+    importFile() {
+      if (this.selectedItem === "A") {
+        this.$store.commit(
+          "setComponentData",
+          deepCopy(pageList[0].canvasData)
+        );
+        this.$store.commit("setCanvasStyle", deepCopy(pageList[0].canvasStyle));
+      } else if (this.selectedItem === "B") {
+        this.$store.commit(
+          "setComponentData",
+          deepCopy(pageList[1].canvasData)
+        );
+        this.$store.commit("setCanvasStyle", deepCopy(pageList[1].canvasStyle));
+      } else if (this.selectedItem === "C") {
+        this.$store.commit(
+          "setComponentData",
+          deepCopy(pageList[2].canvasData)
+        );
+        this.$store.commit("setCanvasStyle", deepCopy(pageList[2].canvasStyle));
+      } else if (this.selectedItem === "D") {
+        this.$store.commit(
+          "setComponentData",
+          deepCopy(pageList[3].canvasData)
+        );
+        this.$store.commit("setCanvasStyle", deepCopy(pageList[3].canvasStyle));
+      } else if (this.selectedItem === "E") {
+        this.$store.commit(
+          "setComponentData",
+          deepCopy(pageList[4].canvasData)
+        );
+        this.$store.commit("setCanvasStyle", deepCopy(pageList[4].canvasStyle));
+      }
+      this.dialogVisible = false;
     },
   },
 };

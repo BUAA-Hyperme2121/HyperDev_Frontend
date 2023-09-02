@@ -2,7 +2,7 @@
 <template>
   <div ref="container" class="bg">
     <el-button v-if="!isScreenshot" class="close" @click="close"
-      >关闭</el-button
+      >返回</el-button
     >
     <!--button
       v-if="!isScreenshot"
@@ -88,6 +88,7 @@ export default {
 
 <style lang="scss" scoped>
 .bg {
+  z-index: 999;
   width: 100%;
   height: 100%;
   top: 0;
@@ -99,14 +100,15 @@ export default {
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding: 20px;
 
   .canvas-container {
-    width: calc(100% - 40px);
-    height: calc(100% - 120px);
+    z-index: 1000;
+    width: 100%;
+    height: calc(100% - 60px);
     overflow: auto;
 
     .canvas {
+      z-index: 1000;
       background: #fff;
       position: relative;
       margin: auto;
@@ -114,6 +116,7 @@ export default {
   }
 
   .close {
+    z-index: 1001;
     position: absolute;
     right: 20px;
     top: 20px;

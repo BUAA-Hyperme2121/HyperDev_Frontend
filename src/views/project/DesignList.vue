@@ -2,7 +2,7 @@
   <div class="collaborative-manage-page-container">
     <div class="manage-page-container">
       <div class="operation-container">
-        <div class="operation-title" @click="jumpTo">工作台</div>
+        <div class="operation-title">工作台</div>
         <div class="operation-notice">新建设计原型</div>
         <div
           class="create-new-doc-area"
@@ -28,10 +28,7 @@
                   <!--div class="icon-overlay" v-show="page.hover"-->
                   <div class="icon-options">
                     <el-tooltip content="编辑" placement="top">
-                      <i
-                        class="el-icon-edit"
-                        @click="getOldDocumentToken(page.id)"
-                      ></i>
+                      <i class="el-icon-edit" @click="goOldDesign(page.id)"></i>
                     </el-tooltip>
                     <el-tooltip content="重命名" placement="top">
                       <i
@@ -176,7 +173,6 @@ export default {
       newPageTitle: DEFAULT_DOC_NAME,
       renameDocumentTitle: DEFAULT_RENAME,
       containerHeight: 550,
-      // VERY IMPORTANT 当前正在操作的文档
       pagelist: [
         { page_name: "第1个页面", page_id: 1, hover: false },
         { page_name: "第2个页面", page_id: 1, hover: false },
@@ -258,7 +254,7 @@ export default {
             console.log(err);
           });
     },
-    async getOldDocumentToken(pageID) {
+    async goOldDesign(pageID) {
       let page_id = pageID;
       let project_id = this.$route.params.project_id;
       this.$router.push({
@@ -366,7 +362,7 @@ export default {
       this.changeToRenameInput = false;
     },
     jumpTo() {
-      this.$router.push("/project/1/design?page_id=1");
+      this.$router.push(`/designlistread/${this.$route.params.project_id}`);
     },
     openRenameDocWindow(page) {
       console.log(page);
@@ -389,7 +385,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .page-list-container {
   height: 500px;
 }

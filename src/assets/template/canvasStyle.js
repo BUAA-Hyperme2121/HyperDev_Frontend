@@ -1,0 +1,1 @@
+{"width":"500","height":"500","scale":100,"color":"#000","opacity":1,"background":"#fff","fontSize":14}

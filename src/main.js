@@ -12,7 +12,7 @@ import "element-ui/lib/theme-chalk/index.css";
 import "@/styles/reset.css";
 import "@/styles/global.scss";
 import ShowLoading from "./assets/showLoading.js";
-
+ElementUI.Dialog.props.lockScroll.default = false;
 Vue.use(VueParticles);
 
 Vue.use(ShowLoading);

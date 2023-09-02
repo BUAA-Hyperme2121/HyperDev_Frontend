@@ -28,7 +28,7 @@
         position: absolute;
         top: 0px;
         left: 0px;
-        z-index: 99;
+        z-index: 10;
         background-color: rgba(219, 219, 219, 0.603);
       "
     >
@@ -91,9 +91,6 @@ export default {
       isCollapse: true,
       activeIndex: 1,
     };
-  },
-  mounted() {
-    console.log(this.$route.params.project_id);
   },
   methods: {
     mouseOver() {
