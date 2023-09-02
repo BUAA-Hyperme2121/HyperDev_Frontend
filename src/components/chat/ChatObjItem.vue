@@ -11,7 +11,7 @@
     </div>
     <!-- 名称（昵称/真实姓名) -->
     <div class="chat-name">
-      <span>{{ item.team.team_name }}</span>
+      <span>{{ item.group_name }}</span>
     </div>
     <!-- 未读消息数 -->
     <!-- <div class="unread">

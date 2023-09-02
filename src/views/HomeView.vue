@@ -80,6 +80,11 @@
             <el-dropdown-item command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
+
+        <!-- 用户名 -->
+        <span class="home-right-top-item">{{
+          this.$store.state.userInfo.username
+        }}</span>
         <!-- 设置 -->
         <!-- <el-icon :size="20" class="home-right-top-item">
           <i class="el-icon-setting"></i>
@@ -90,7 +95,7 @@
         </el-icon> -->
       </div>
       <!-- 分割线   -->
-      <el-divider style="margin: 8px"></el-divider>
+      <el-divider></el-divider>
       <router-view :key="$route.fullPath" />
     </div>
 
@@ -200,6 +205,9 @@ export default {
             type: "error",
           });
         });
+
+      //清空输入框
+      this.newTeamName = "";
     },
 
     //获取团队列表
@@ -239,6 +247,9 @@ export default {
 </script>
 
 <style scoped>
+.el-divider--horizontal {
+  margin: 6px 0;
+}
 .background {
   background-color: #f2f6ff;
   position: fixed;

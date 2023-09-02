@@ -80,6 +80,29 @@
         <span>已拒绝该邀请</span>
       </div>
     </div>
+    <!-- 群聊邀请 -->
+    <div class="invite-content" v-if="msgDetail.invite_group_chat != null">
+      <!-- 群聊信息 -->
+      <div class="team-info">
+        <span>{{ msgDetail.invite_group_chat.group_name }}</span>
+      </div>
+      <!-- 加入或拒绝按钮 -->
+      <div class="team-btn" v-if="msgDetail.invite_state == 0">
+        <el-button type="primary" size="small" @click="enterGroup"
+          >加入</el-button
+        >
+        <el-button type="danger" size="small" @click="rejectGroup"
+          >拒绝</el-button
+        >
+      </div>
+      <!-- 已加入或已拒绝 -->
+      <div class="team-status" v-if="msgDetail.invite_state == 1">
+        <span>已加入该群聊</span>
+      </div>
+      <div class="team-status" v-if="msgDetail.invite_state == 2">
+        <span>已拒绝该群聊</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -130,6 +153,48 @@ export default {
     rejectTeam() {
       this.axios({
         url: `/team/${this.msgDetail.invite_team.id}/user/${this.$store.state.userInfo.id}`,
+        method: "post",
+        data: qs.stringify({
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+          message_id: this.message_id,
+          invite_state: 2,
+        }),
+      }).then((res) => {
+        this.$message({
+          message: "已拒绝",
+          type: "success",
+        });
+      });
+
+      // 修改消息状态
+      this.msgDetail.invite_state = 2;
+    },
+
+    // 发送请求，加入群聊
+    enterGroup() {
+      this.axios({
+        url: `/chat/group_chat/${this.msgDetail.invite_group_chat.id}/user`,
+        method: "post",
+        data: qs.stringify({
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+          message_id: this.message_id,
+          invite_state: 1,
+        }),
+      }).then((res) => {
+        this.$message({
+          message: "加入成功",
+          type: "success",
+        });
+      });
+
+      // 修改消息状态
+      this.msgDetail.invite_state = 1;
+    },
+
+    // 发送请求，拒绝群聊邀请
+    rejectGroup() {
+      this.axios({
+        url: `/chat/group_chat/${this.msgDetail.invite_group_chat.id}/user`,
         method: "post",
         data: qs.stringify({
           jwt: JSON.parse(localStorage.getItem("jwt")),

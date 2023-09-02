@@ -24,6 +24,7 @@
     "vditor": "^3.9.4",
     "vue": "^2.6.14",
     "vue-at": "^2.5.1",
+    "vue-contextmenujs": "^1.4.9",
     "vue-echarts": "^6.5.4",
     "vue-router": "^3.5.1",
     "vue2-editor": "^2.10.3",

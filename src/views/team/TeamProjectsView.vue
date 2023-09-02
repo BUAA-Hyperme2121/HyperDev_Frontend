@@ -1,12 +1,34 @@
 <template>
   <div>
+    <div>
+      <!-- 搜索 -->
+      <el-input
+        placeholder="搜索项目"
+        v-model="searchProjectName"
+        style="width: 200px; margin: 20px 0"
+        @keyup.enter.native="searchProject"
+      >
+        <el-button slot="append" icon="el-icon-search" @click.native="searchProject"></el-button>
+      </el-input>
+      <!-- 排序 -->
+      <el-select
+        v-model="order_by"
+        placeholder="排序"
+        style="width: 150px; margin: 20px"
+        @change="sortProjectList"
+      >
+        <el-option label="按创建时间升序" value="create_time"></el-option>
+        <el-option label="按创建时间降序" value="-create_time"></el-option>
+        <el-option label="按项目名称升序" value="project_name"></el-option>
+        <el-option label="按项目名称降序" value="-project_name"></el-option>
+      </el-select>
+    </div>
     <div class="projects-box">
       <ProjectItem
         v-for="item in projectList"
         :key="item.id"
         :item="item"
         @getProjectList="getProjectList"
-        @click.native="goProject(item.id)"
       />
       <!-- 新建项目 -->
       <div
@@ -51,6 +73,9 @@ export default {
       projectList: [],
       createProjectDialogVisible: false,
       newProjectName: "",
+
+      searchProjectName: "",
+      order_by: "按创建时间升序",
     };
   },
   mounted() {
@@ -58,6 +83,34 @@ export default {
     this.getProjectList();
   },
   methods: {
+    // 排序项目列表
+    sortProjectList(order_by) {
+      this.axios({
+        method: "get",
+        url: "/project/",
+        params: {
+          team_id: this.$route.query.team_id,
+          order_by: order_by,
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        },
+      }).then((res) => {
+        this.projectList = res.data.data;
+      });
+    },
+    // 搜索项目
+    searchProject() {
+      this.axios({
+        method: "get",
+        url: "/project/",
+        params: {
+          team_id: this.$route.query.team_id,
+          project_name: this.searchProjectName,
+          jwt: JSON.parse(localStorage.getItem("jwt")),
+        },
+      }).then((res) => {
+        this.projectList = res.data.data;
+      });
+    },
     // 获取项目列表
     getProjectList() {
       this.axios({
@@ -72,9 +125,9 @@ export default {
       });
     },
     //跳转页面
-    goProject(id) {
-      this.$router.push(`/project/${id}`);
-    },
+    // goProject(id) {
+    //   this.$router.push(`/project/${id}`);
+    // },
     // 创建项目
     createProject() {
       // 创建项目
