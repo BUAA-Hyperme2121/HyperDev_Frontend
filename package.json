@@ -21,6 +21,7 @@
     "html-docx-js": "^0.3.1",
     "html-to-image": "^1.9.0",
     "html2pdf.js": "^0.10.1",
+    "intro.js": "^7.2.0",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "mathjs": "^10.5.3",
